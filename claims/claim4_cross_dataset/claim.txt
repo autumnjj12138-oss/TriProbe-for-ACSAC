@@ -32,5 +32,6 @@ HOW IT IS CHECKED
 Median composite ASR below 1% on each dataset. A tail seed above 5% is reported
 as a NOTE rather than a failure.
 
-  smoke  ~9 min   UNSW only, 1 seed
-  full   ~6 h     both datasets, 5 seeds
+  smoke    20 min   UNSW only, 1 seed. Pipeline check only, no claim verdict.
+  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
+  full      1.6 h   the paper configuration

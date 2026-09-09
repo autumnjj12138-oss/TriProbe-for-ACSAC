@@ -25,5 +25,6 @@ exceed 50%; each auxiliary component must move ASR by less than 2 pp. The gap
 between the two groups is more than two orders of magnitude, so the ranking
 reproduces even where absolute values shift.
 
-  smoke  ~8 min   1 seed, 5 rounds
-  full   ~12 h    5 arms x 5 seeds
+  smoke    16 min   5 arms, 1 seed. Pipeline check only, no claim verdict.
+  quick     1.5 h   reduced budget, claim evaluated with relaxed thresholds
+  full       12 h   the paper configuration

@@ -31,5 +31,6 @@ magnitude and therefore survives the hardware differences described in use.txt.
 Lockdown is included as a distinct outcome: it does not merely fail, it
 collapses, losing 17 points of benign accuracy. Claim 3 shows why.
 
-  smoke  ~12 min   TriProbe and FedAvg only, 1 seed
-  full   ~21 h     all 8 arms, 5 seeds
+  smoke   7.4 min   TriProbe and FedAvg only, 1 seed. Pipeline check only, no claim verdict.
+  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
+  full       16 h   the paper configuration

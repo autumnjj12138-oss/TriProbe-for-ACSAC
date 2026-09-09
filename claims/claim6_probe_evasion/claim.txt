@@ -37,5 +37,6 @@ The assertion is inverted. The run PASSES when ASR exceeds 20%, because that is
 what the paper claims happens. If ASR comes out low, the evasion objective did
 not take effect; check that evasion_attack is set and evasion_lambda is nonzero.
 
-  smoke  ~6 min   mismatched and evasion arms, 1 seed
-  full   ~10 h    all arms including mitigations, 3 seeds
+  smoke   8.5 min   mismatched and evasion arms, 1 seed. Pipeline check only, no claim verdict.
+  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
+  full      5.6 h   the paper configuration

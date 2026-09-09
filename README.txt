@@ -48,40 +48,56 @@ comparison against expected/ at the end.
 
 CLAIMS AND RUNTIME
 ------------------
-Per-run cost on the reference machine, one NVIDIA GTX 1650 (4 GB), measured:
 
-  smoke  5 rounds, 20k samples    about 5 min per run
-  quick  15 rounds, 60k samples   about 19 min per run
-  full   30 rounds, 200k samples  about 28 min per run  (about 19 for UNSW)
+  IMPORTANT: --smoke does not evaluate any claim, on any of the six.
 
-Totals below are those figures multiplied by the number of runs each claim
-performs. They are arithmetic, not stopwatch readings, so treat them as close
-estimates rather than guarantees.
+  At 5 rounds on 20k samples the model does not learn the task. It predicts a
+  single class for everything, and which class depends on the dataset: benign on
+  CIC-IDS2017, where 80.3% of traffic is benign, and attack on UNSW-NB15, where
+  68.1% is. ASR then reads ~100% in the first case and ~0% in the second, for
+  the defended and undefended arms alike. Both look decisive and neither is.
 
-  claim                          what it shows          runs  quick     full
-  claim1_main_defense    composite backdoor defeats 8    2/35  38 min   16 h
-                         published defenses; TriProbe holds
-  claim2_ablation        ASF and the density cap are     5/25  1.6 h    12 h
-                         the two decisive mechanisms
-  claim3_density_cliff   a sharp density cliff at        2/8   38 min  3.7 h
-                         0.16 to 0.18
-  claim4_cross_dataset   UNSW-NB15                       1/5   19 min  1.6 h
-  claim5_adaptive        scaling bounded and unbounded,  4/29  1.3 h    14 h
-                         delayed and on-off attackers
-  claim6_probe_evasion   the applicability boundary: a   2/12  38 min  5.6 h
-                         probe-aware attacker defeats ASF
-                                                  total       5.7 h    53 h
+  This is a property of the system, not a tuning choice: the defense needs
+  enough rounds for the mask to converge and for the server filter to identify
+  attackers, and 5 is not enough. run.sh detects the collapse, says so, and
+  reports PIPELINE OK rather than a claim verdict. Use --quick to see a claim
+  actually evaluated.
 
-"runs" is the number of training runs in quick / full mode. Quick uses one seed;
-full uses the paper's five (three for the delayed and evasion arms).
+Measured on the reference machine, one NVIDIA GTX 1650 (4 GB). Smoke and quick
+figures are stopwatch readings; full figures are the measured per-run cost
+(about 28 min on CIC-IDS2017) multiplied by the run count, so treat those as
+close estimates.
+
+  claim                        runs      smoke      quick       full
+  claim1_main_defense          2/2/35   7.4 min    35 min      16 h
+      composite backdoor defeats 8 published defenses; TriProbe holds
+  claim2_ablation              5/5/25    16 min   1.5 h        12 h
+      ASF and the density cap are the two decisive mechanisms
+  claim3_density_cliff         2/2/8     12 min    35 min     3.7 h
+      a sharp density cliff between 0.16 and 0.18
+  claim4_cross_dataset         1/1/5     20 min    35 min     1.6 h
+      UNSW-NB15
+  claim5_adaptive              4/4/29    13 min   1.2 h        14 h
+      scaling bounded and unbounded, delayed and on-off attackers
+  claim6_probe_evasion         2/2/12   8.5 min    35 min     5.6 h
+      the applicability boundary: a probe-aware attacker defeats ASF
+                                total   1.3 h     5.5 h        53 h
+
+"runs" is the number of training runs in smoke / quick / full. Smoke and quick
+use one seed; full uses the paper's five, or three for the delayed and evasion
+arms.
+
+claim4 is slower per run than the others because the UNSW test split is 175k
+rows and is evaluated in full every round; only the training split is reduced
+at lower budgets.
 
 claim6 is a NEGATIVE result. It is included because the paper states this
 boundary explicitly and the artifact should let a reader verify it. Its run.sh
 passes when the defense fails.
 
-If reviewer time is limited, claim3 then claim2 give the most evidence per hour:
-claim3 is the cheapest and its two regimes differ by two orders of magnitude,
-and claim2 covers both decisive mechanisms.
+If reviewer time is limited: claim3 --quick is the single most informative run
+at 35 minutes, since its two regimes differ by more than an order of magnitude.
+claim2 --quick then covers both decisive mechanisms.
 
 To run everything:  bash claims/run_all.sh --quick   (or --smoke, or --full)
 

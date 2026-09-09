@@ -48,5 +48,6 @@ successful defense.
 This claim is graded SENSITIVE. Our own hardware change moved the scaling
 number by roughly 7x. Check the assertions, not the point values.
 
-  smoke  ~10 min   both scaling settings, 1 seed
-  full   ~11 h     scaling 5 seeds, delayed/on-off 3 seeds
+  smoke    13 min   both scaling settings, 1 seed. Pipeline check only, no claim verdict.
+  quick     1.2 h   reduced budget, claim evaluated with relaxed thresholds
+  full       14 h   the paper configuration

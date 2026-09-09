@@ -31,5 +31,6 @@ This is the cheapest and most decisive claim to verify, and the best one to run
 first: the two regimes differ by two orders of magnitude in ASR and 16 points of
 benign accuracy.
 
-  smoke  ~10 min   caps 0.14 and 0.18 only
-  full   ~4 h      all 8 cap settings
+  smoke    12 min   caps 0.14 and 0.18 only. Pipeline check only, no claim verdict.
+  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
+  full      3.7 h   the paper configuration

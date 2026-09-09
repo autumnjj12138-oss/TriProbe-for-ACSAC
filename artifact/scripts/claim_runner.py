@@ -63,7 +63,11 @@ def base_cfg(mode, dataset_root, unsw=False):
     rounds, samples = BUDGET[mode]
     kw = dict(rounds=rounds, run_layerwise_pruning_scan=False)
     if unsw:
-        cfg = make_unsw_config(**kw)
+        # The UNSW preset trains on the full split by default. Without an
+        # explicit cap the reduced budgets only cut rounds, not data, and a
+        # "smoke" run of this claim took 32 minutes against 4 for the others.
+        cfg = make_unsw_config(
+            max_train_samples=None if mode == "full" else samples, **kw)
     else:
         cfg = make_cicids2017_config(max_train_samples=samples, **kw)
     if dataset_root:
@@ -208,16 +212,24 @@ def _m(rows, key="asr"):
 
 
 def degenerate(rows):
-    """True if the model never learned to detect anything.
+    """True if the model has no discriminative power, whichever way it collapsed.
 
-    A model that predicts the benign class for every input scores DR=0, FNR=1,
-    and a benign accuracy equal to the dataset's benign fraction. Every triggered
-    attack sample then trivially "hits" the benign target label, so ASR reads
-    100% -- which looks identical to a total defense failure but is not one. It
-    happens when the training budget is too small, so it is worth naming rather
-    than reporting as a failed claim.
+    An undertrained model predicts one class for everything, and which class
+    depends on the dataset's majority. On CIC-IDS2017 (80.3% benign) it answers
+    benign for everything: DR=0, FPR=0, and every triggered sample trivially
+    "hits" the benign target label so ASR reads 100%. On UNSW-NB15 (68.1%
+    attack) it collapses the other way: DR=100, FPR=100, and ASR reads 0%.
+
+    Both look like a decisive result and neither is one. Testing DR alone misses
+    the second case -- it was measured at DR=1.0 with benign accuracy pinned to
+    0.6806, the attack majority rate. What both share is that the detection rate
+    carries no information beyond the false-positive rate, so the gap between
+    them is what to test. On real runs that gap is wide: 92.85 vs 3.23 on CIC,
+    99.26 vs 21.50 on UNSW, 76.58 vs 7.70 on NSL-KDD.
     """
-    return mean([r["dr"] for r in rows]) < 5.0
+    dr = mean([r["dr"] for r in rows])
+    fpr = mean([r["fpr"] for r in rows])
+    return (dr - fpr) < 20.0
 
 
 def evaluate(claim, res, mode):
@@ -228,9 +240,11 @@ def evaluate(claim, res, mode):
         notes.append(
             "PIPELINE CHECK ONLY -- the claim is not evaluated at this budget. "
             "5 rounds on 20k samples is not enough for the model to learn the "
-            "task, so ASR reads ~100% whether or not the defense is on. "
+            "task, so it predicts one class for everything and ASR is "
+            "meaningless: it reads ~100% on CIC-IDS2017, where the majority "
+            "class is benign, and ~0% on UNSW-NB15, where it is attack. "
             + ("Confirmed here: " + ", ".join(bad) + " show a detection rate "
-               "near zero, i.e. the model predicts one class for everything. "
+               "no better than the false-positive rate. "
                if bad else "")
             + "What this run does establish is that the data loads, training "
             "runs, the filter executes and results are written. Use --quick to "
@@ -373,9 +387,10 @@ def main():
         print("  NOTE  " + m)
     for m in failed:
         print("  FAIL  " + m)
-    if smoke:
-        print("\nSmoke mode: absolute values are NOT expected to match expected/.")
-        print("It checks that the pipeline runs and the effect points the right way.")
+    if mode == "quick":
+        print("\nQuick mode: margins are smaller than at full budget and absolute")
+        print("values will not match reference_outputs/. The assertions above are")
+        print("relaxed to match; --full reproduces the paper configuration.")
     print("\nresults -> " + path)
     if mode == "smoke":
         print("RESULT: PIPELINE OK (claim not evaluated at this budget)")
