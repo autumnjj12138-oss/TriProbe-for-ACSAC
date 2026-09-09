@@ -1,0 +1,44 @@
+{
+  "reference_hardware": "NVIDIA GTX 1650, torch 2.6.0+cu126",
+  "grade": "ROBUST",
+  "reference_values": {
+    "ASR_pct_by_density_cap": {
+      "0.08": 0.571,
+      "0.1": 1.332,
+      "0.12": 0.546,
+      "0.14": 0.711,
+      "0.16": 0.774,
+      "0.18": 100.0,
+      "0.2": 100.0,
+      "None": 100.0
+    },
+    "benign_acc_pct_by_density_cap": {
+      "0.08": 95.97,
+      "0.1": 95.8,
+      "0.12": 96.09,
+      "0.14": 95.99,
+      "0.16": 95.96,
+      "0.18": 80.3,
+      "0.2": 80.3,
+      "None": 80.3
+    }
+  },
+  "assertions": [
+    {
+      "id": "below_cliff_safe",
+      "test": "ASR < 5.0 for every cap in {0.08,0.10,0.12,0.14,0.16}",
+      "rationale": "the defense holds at any cap below the cliff"
+    },
+    {
+      "id": "above_cliff_collapse",
+      "test": "ASR > 95.0 for cap in {0.18,0.20,None}",
+      "rationale": "the cliff is sharp, not gradual"
+    },
+    {
+      "id": "cliff_is_sharp",
+      "test": "ASR(cap=0.16) < 5.0 and ASR(cap=0.18) > 95.0",
+      "rationale": "a single 0.02 step spans the whole range"
+    }
+  ],
+  "tolerance_note": "This is the cleanest claim to check: the two regimes are ~1% and 100%, so no hardware difference can blur them. Cheapest full run of the six."
+}

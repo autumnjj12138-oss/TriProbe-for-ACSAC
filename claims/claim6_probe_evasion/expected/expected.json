@@ -1,0 +1,31 @@
+{
+  "reference_hardware": "NVIDIA GTX 1650, torch 2.6.0+cu126",
+  "grade": "ROBUST (negative result)",
+  "reference_values": {
+    "M_nodef": 63.92,
+    "M_evasion": 63.69,
+    "O_mismatch": 1.78,
+    "O_evasion": 45.17,
+    "O_evasion_randprobe": 34.63,
+    "O_evasion_normclip": 35.17,
+    "O_evasion_full": 32.61
+  },
+  "assertions": [
+    {
+      "id": "evasion_defeats_asf",
+      "test": "O_evasion ASR > 20.0",
+      "rationale": "THIS IS THE CLAIM. A probe-aware attacker defeats the defense; the artifact should confirm the failure, not the success."
+    },
+    {
+      "id": "mismatch_alone_is_fine",
+      "test": "O_mismatch ASR < 5.0",
+      "rationale": "a merely mismatched, non-adaptive probe is tolerated, which isolates adaptivity as the cause"
+    },
+    {
+      "id": "countermeasures_insufficient",
+      "test": "randomized probes, norm clipping, and both together all > 20.0",
+      "rationale": "none of the mitigations we tried closes the gap"
+    }
+  ],
+  "tolerance_note": "A reviewer reproducing this should see the defense FAIL. If ASR comes out low, the evasion attack did not train correctly; check that evasion_lambda took effect."
+}

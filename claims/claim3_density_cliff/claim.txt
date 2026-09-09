@@ -1,0 +1,35 @@
+CLAIM 3 -- Mask density has a sharp cliff, and the hard cap keeps the system
+           below it.
+Paper: Section 6.3 and the mask-density-drift analysis.
+
+WHAT THE PAPER CLAIMS
+Sparse federated training with symmetric prune-and-recover lets mask density
+drift upward until consensus fusion loses its pruning margin, which is why the
+Lockdown baseline collapses in claim 1. TriProbe uses asymmetric rates
+(alpha_prune = 0.05 > alpha_recover = 0.01), whose fixed point is
+alpha_r/(alpha_p+alpha_r) = 0.167. That value sits directly on a cliff: the
+defense is healthy at any cap up to 0.16 and collapses completely at 0.18. The
+hard cap exists to hold density below the cliff rather than at its edge.
+
+REFERENCE VALUES (seed 42, GTX 1650)
+  cap    ASR        benign acc
+  0.08    0.57 %      95.97 %
+  0.10    1.33 %      95.80 %
+  0.12    0.55 %      96.09 %
+  0.14    0.71 %      95.99 %      <- the paper's setting
+  0.16    0.77 %      95.96 %
+  0.18  100.00 %      80.30 %      <- cliff
+  0.20  100.00 %      80.30 %
+  none  100.00 %      80.30 %
+
+HOW IT IS CHECKED
+Every cap at or below 0.16 must give ASR under 5%; every cap at or above 0.18
+must exceed 95%. A single 0.02 step spans the entire range, so no numerical
+difference between machines can blur it.
+
+This is the cheapest and most decisive claim to verify, and the best one to run
+first: the two regimes differ by two orders of magnitude in ASR and 16 points of
+benign accuracy.
+
+  smoke  ~10 min   caps 0.14 and 0.18 only
+  full   ~4 h      all 8 cap settings

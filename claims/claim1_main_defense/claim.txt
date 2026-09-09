@@ -1,0 +1,35 @@
+CLAIM 1 -- The composite backdoor defeats published FL backdoor defenses, and
+           TriProbe stops it.
+Paper: Section 6.2, Tables 2 and 3.
+
+WHAT THE PAPER CLAIMS
+An attacker who splits a weak trigger across the header and temporal feature
+subspaces evades every defense we tested that reasons about update geometry,
+because neither half is anomalous on its own. TriProbe, which instead scores
+each client by its target-class response to a synthetic triggered probe,
+reduces attack success rate (ASR) to about 1% while the baselines stay near the
+undefended level.
+
+REFERENCE VALUES (5 seeds, GTX 1650; see expected/expected.json)
+  TriProbe            0.86 +/- 0.68 %      <- below the 5% deployment threshold
+  FLAME               57.72 %
+  DeepSight           63.08 %
+  FedAvg (no defense) 63.13 %
+  RLR                 64.44 %
+  FedMedian           66.57 %
+  Krum                73.29 %
+  Lockdown            100.00 %  (benign accuracy also collapses to 80.30%)
+
+Krum's five-seed standard deviation is +/- 20.84, which is why the paper reports
+distributions rather than the single-seed numbers of the original submission.
+
+HOW IT IS CHECKED
+The assertion is the separation, not the absolute value: every baseline above
+40% ASR, TriProbe below 5%, and at least a 20x gap. That margin spans orders of
+magnitude and therefore survives the hardware differences described in use.txt.
+
+Lockdown is included as a distinct outcome: it does not merely fail, it
+collapses, losing 17 points of benign accuracy. Claim 3 shows why.
+
+  smoke  ~12 min   TriProbe and FedAvg only, 1 seed
+  full   ~21 h     all 8 arms, 5 seeds

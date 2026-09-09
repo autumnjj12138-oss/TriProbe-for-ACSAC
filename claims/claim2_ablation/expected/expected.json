@@ -1,0 +1,36 @@
+{
+  "reference_hardware": "NVIDIA GTX 1650, torch 2.6.0+cu126",
+  "grade": "ROBUST",
+  "reference_values": {
+    "composite_ASR_pct": {
+      "full": 0.86,
+      "no_ASF": 45.624,
+      "no_density_cap": 100.0,
+      "no_L1_hard": 1.063,
+      "no_final_CF": 0.898
+    }
+  },
+  "assertions": [
+    {
+      "id": "asf_is_decisive",
+      "test": "ASR(w/o ASF) > 20 * ASR(full)",
+      "rationale": "removing the server-side filter is catastrophic"
+    },
+    {
+      "id": "density_cap_is_decisive",
+      "test": "ASR(w/o density cap) > 50.0",
+      "rationale": "removing the cap collapses the defense entirely"
+    },
+    {
+      "id": "layer1_is_auxiliary",
+      "test": "abs(ASR(w/o Layer-1) - ASR(full)) < 2.0",
+      "rationale": "structural constraint contributes under a percentage point"
+    },
+    {
+      "id": "fusion_is_auxiliary",
+      "test": "abs(ASR(w/o final CF) - ASR(full)) < 2.0",
+      "rationale": "consensus fusion contributes marginally"
+    }
+  ],
+  "tolerance_note": "The two core mechanisms differ from the auxiliary ones by more than two orders of magnitude, so the ranking reproduces even when absolute values shift."
+}

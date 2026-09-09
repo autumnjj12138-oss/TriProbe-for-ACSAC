@@ -1,0 +1,50 @@
+{
+  "reference_hardware": "NVIDIA GTX 1650, torch 2.6.0+cu126",
+  "grade": "ROBUST",
+  "reference_values": {
+    "TriProbe_composite_ASR_pct": {
+      "mean": 0.86,
+      "std": 0.678,
+      "per_seed": [
+        0.711,
+        0.355,
+        0.584,
+        2.195,
+        0.457
+      ]
+    },
+    "baseline_composite_ASR_pct": {
+      "FedAvg": 63.13,
+      "FedMedian": 66.57,
+      "Krum": 73.29,
+      "FLAME": 57.72,
+      "RLR": 64.44,
+      "DeepSight": 63.08,
+      "Lockdown_native": 100.0,
+      "Lockdown_flowaware": 100.0
+    }
+  },
+  "assertions": [
+    {
+      "id": "triprobe_below_threshold",
+      "test": "TriProbe composite ASR < 5.0",
+      "rationale": "the paper's stated deployment threshold"
+    },
+    {
+      "id": "all_baselines_fail",
+      "test": "every baseline composite ASR > 40.0",
+      "rationale": "none of the published defenses reduces the composite backdoor below the threshold"
+    },
+    {
+      "id": "order_of_magnitude",
+      "test": "min(baseline ASR) / TriProbe ASR > 20",
+      "rationale": "the separation is orders of magnitude, so it survives hardware differences"
+    },
+    {
+      "id": "lockdown_collapses",
+      "test": "Lockdown ASR > 95.0 and Lockdown benign accuracy < 85.0",
+      "rationale": "sparse-training baseline collapses under this attack"
+    }
+  ],
+  "tolerance_note": "Compare against the assertions, not the point values. Absolute ASR varies across hardware; the separation does not."
+}

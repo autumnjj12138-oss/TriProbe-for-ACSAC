@@ -1,0 +1,29 @@
+CLAIM 2 -- Two of TriProbe's four components do the work.
+Paper: Section 6.3, Table 5.
+
+WHAT THE PAPER CLAIMS
+TriProbe combines triggered-probe filtering (ASF), a hard cap on client mask
+density, Layer-1 cross-subspace blocking, and end-of-training consensus fusion.
+The first two are decisive; the other two are auxiliary. Removing either core
+mechanism destroys the defense. Removing either auxiliary one changes ASR by
+well under a percentage point.
+
+This claim was strengthened in response to review: the submitted paper presented
+all four components as comparable contributors, which the five-seed ablation
+does not support.
+
+REFERENCE VALUES (5 seeds, GTX 1650)
+  full TriProbe            0.86 +/- 0.68 %
+  w/o triggered-probe ASF  45.62 +/- 6.06 %     <- decisive
+  w/o hard density cap    100.00 +/- 0.00 %     <- decisive
+  w/o Layer-1 hard block    1.06 +/- 0.74 %     <- auxiliary, +0.20 pp
+  w/o final consensus fusion 0.90 +/- 0.68 %    <- auxiliary, +0.04 pp
+
+HOW IT IS CHECKED
+Removing ASF must raise ASR by more than 20x; removing the density cap must
+exceed 50%; each auxiliary component must move ASR by less than 2 pp. The gap
+between the two groups is more than two orders of magnitude, so the ranking
+reproduces even where absolute values shift.
+
+  smoke  ~8 min   1 seed, 5 rounds
+  full   ~12 h    5 arms x 5 seeds

@@ -1,0 +1,41 @@
+CLAIM 6 -- A probe-aware attacker defeats TriProbe. This is the method's
+           applicability boundary.
+Paper: Limitations section.
+
+THIS CLAIM IS A NEGATIVE RESULT
+Reproducing it means watching the defense FAIL. It is included because the
+paper states this boundary explicitly and a reader should be able to check it.
+
+WHAT THE PAPER CLAIMS
+TriProbe's server-side filter scores a client by its target-class confidence on
+a synthetic triggered probe. An attacker who knows the probe distribution can
+train against that signal directly: implant the backdoor while adding a penalty
+that suppresses target-class confidence on probe-like inputs. The backdoor
+survives, the score does not rise, and the client is not filtered.
+
+This attacker is stronger than the paper's stated threat model, which grants
+knowledge of the architecture but not of the probe distribution. It is
+nonetheless a real boundary and the paper reports it as a central limitation.
+
+REFERENCE VALUES (3 seeds, GTX 1650)
+  undefended, no evasion                     63.92 %
+  undefended, with evasion                   63.69 %   <- evasion costs the
+                                                          attacker nothing
+  TriProbe, mismatched non-adaptive probe     1.78 %   <- defense works
+  TriProbe, probe-aware attacker             45.17 %   <- defense fails
+  + randomized probes each round             34.63 %
+  + norm clipping                            35.17 %
+  + both together                            32.61 %
+
+The mismatched-probe arm matters: a probe sharing zero features with the real
+trigger, but the same cross-subspace structure, is still tolerated at 1.78%.
+So the failure is caused by the attacker's adaptivity, not by probe mismatch.
+None of the three mitigations we tried brings ASR near the 5% threshold.
+
+HOW IT IS CHECKED
+The assertion is inverted. The run PASSES when ASR exceeds 20%, because that is
+what the paper claims happens. If ASR comes out low, the evasion objective did
+not take effect; check that evasion_attack is set and evasion_lambda is nonzero.
+
+  smoke  ~6 min   mismatched and evasion arms, 1 seed
+  full   ~10 h    all arms including mitigations, 3 seeds

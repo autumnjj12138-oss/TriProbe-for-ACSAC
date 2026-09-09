@@ -1,0 +1,10 @@
+# Datasets are not redistributed; see infrastructure/datasets.md
+artifact/dataset/
+dataset/
+
+# Produced by running the claims
+results/
+.venv/
+__pycache__/
+*.pyc
+*.log

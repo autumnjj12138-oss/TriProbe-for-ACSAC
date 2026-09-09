@@ -1,0 +1,119 @@
+{
+  "device": "NVIDIA GeForce GTX 1650",
+  "malicious_ids": [
+    6,
+    7,
+    9,
+    19
+  ],
+  "runs": {
+    "bounded_nodef_s42": {
+      "arm": "bounded_nodef",
+      "seed": 42,
+      "norm_bound_factor": 2.0,
+      "benign": 0.9746756331091723,
+      "asr": 0.9347715736040609,
+      "realised_amplification_mean": 3.076,
+      "clipped_fraction": 0.75
+    },
+    "bounded_triprobe_s42": {
+      "arm": "bounded_triprobe",
+      "seed": 42,
+      "norm_bound_factor": 2.0,
+      "benign": 0.96297592560186,
+      "asr": 0.005076142131979695,
+      "realised_amplification_mean": 2.3693333333333335,
+      "clipped_fraction": 0.9666666666666667
+    },
+    "unbounded_nodef_s42": {
+      "arm": "unbounded_nodef",
+      "seed": 42,
+      "norm_bound_factor": null,
+      "benign": 0.9725756856078598,
+      "asr": 0.9845177664974619,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_nodef_s123": {
+      "arm": "unbounded_nodef",
+      "seed": 123,
+      "norm_bound_factor": null,
+      "benign": 0.9680507987300317,
+      "asr": 0.9115482233502538,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_nodef_s3407": {
+      "arm": "unbounded_nodef",
+      "seed": 3407,
+      "norm_bound_factor": null,
+      "benign": 0.9705257368565786,
+      "asr": 0.9942893401015228,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_nodef_s2025": {
+      "arm": "unbounded_nodef",
+      "seed": 2025,
+      "norm_bound_factor": null,
+      "benign": 0.9720506987325317,
+      "asr": 0.9694162436548224,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_nodef_s666": {
+      "arm": "unbounded_nodef",
+      "seed": 666,
+      "norm_bound_factor": null,
+      "benign": 0.9719257018574535,
+      "asr": 0.9196700507614213,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_triprobe_s42": {
+      "arm": "unbounded_triprobe",
+      "seed": 42,
+      "norm_bound_factor": null,
+      "benign": 0.9624009399765006,
+      "asr": 0.01649746192893401,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_triprobe_s123": {
+      "arm": "unbounded_triprobe",
+      "seed": 123,
+      "norm_bound_factor": null,
+      "benign": 0.9613509662258444,
+      "asr": 0.012944162436548223,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_triprobe_s3407": {
+      "arm": "unbounded_triprobe",
+      "seed": 3407,
+      "norm_bound_factor": null,
+      "benign": 0.9604259893502662,
+      "asr": 0.0038071065989847717,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_triprobe_s2025": {
+      "arm": "unbounded_triprobe",
+      "seed": 2025,
+      "norm_bound_factor": null,
+      "benign": 0.9603009924751881,
+      "asr": 0.006091370558375634,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    },
+    "unbounded_triprobe_s666": {
+      "arm": "unbounded_triprobe",
+      "seed": 666,
+      "norm_bound_factor": null,
+      "benign": 0.9605259868503288,
+      "asr": 0.006852791878172589,
+      "realised_amplification_mean": 5.0,
+      "clipped_fraction": 0.0
+    }
+  }
+}

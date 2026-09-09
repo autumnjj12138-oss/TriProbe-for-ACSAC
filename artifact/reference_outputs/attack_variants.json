@@ -1,0 +1,202 @@
+{
+  "device": "NVIDIA GeForce GTX 1650",
+  "runs": {
+    "lowrate__nodef_s42": {
+      "variant": "lowrate",
+      "arm": "nodef",
+      "seed": 42,
+      "benign": 0.9743756406089847,
+      "asr": 0.5615482233502538
+    },
+    "lowrate__triprobe_s42": {
+      "variant": "lowrate",
+      "arm": "triprobe",
+      "seed": 42,
+      "benign": 0.9612009699757506,
+      "asr": 0.00799492385786802
+    },
+    "lowrate__triprobe_s123": {
+      "variant": "lowrate",
+      "arm": "triprobe",
+      "seed": 123,
+      "benign": 0.9606259843503913,
+      "asr": 0.006345177664974619
+    },
+    "lowrate__triprobe_s3407": {
+      "variant": "lowrate",
+      "arm": "triprobe",
+      "seed": 3407,
+      "benign": 0.961175970600735,
+      "asr": 0.012944162436548223
+    },
+    "three_subspace__nodef_s42": {
+      "variant": "three_subspace",
+      "arm": "nodef",
+      "seed": 42,
+      "benign": 0.9742506437339067,
+      "asr": 0.9598984771573604
+    },
+    "three_subspace__triprobe_s42": {
+      "variant": "three_subspace",
+      "arm": "triprobe",
+      "seed": 42,
+      "benign": 0.9602009949751257,
+      "asr": 0.0012690355329949238
+    },
+    "three_subspace__triprobe_s123": {
+      "variant": "three_subspace",
+      "arm": "triprobe",
+      "seed": 123,
+      "benign": 0.96017599560011,
+      "asr": 0.0011421319796954316
+    },
+    "three_subspace__triprobe_s3407": {
+      "variant": "three_subspace",
+      "arm": "triprobe",
+      "seed": 3407,
+      "benign": 0.9604259893502662,
+      "asr": 0.008883248730964468
+    },
+    "alt_partition__nodef_s42": {
+      "variant": "alt_partition",
+      "arm": "nodef",
+      "seed": 42,
+      "benign": 0.9743756406089847,
+      "asr": 0.9494923857868021
+    },
+    "alt_partition__triprobe_s42": {
+      "variant": "alt_partition",
+      "arm": "triprobe",
+      "seed": 42,
+      "benign": 0.9619509512262193,
+      "asr": 0.0024111675126903555
+    },
+    "alt_partition__triprobe_s123": {
+      "variant": "alt_partition",
+      "arm": "triprobe",
+      "seed": 123,
+      "benign": 0.9600759981000475,
+      "asr": 0.0013959390862944162
+    },
+    "alt_partition__triprobe_s3407": {
+      "variant": "alt_partition",
+      "arm": "triprobe",
+      "seed": 3407,
+      "benign": 0.9616009599760006,
+      "asr": 0.0025380710659898475
+    },
+    "flag_only__nodef_s42": {
+      "variant": "flag_only",
+      "arm": "nodef",
+      "seed": 42,
+      "benign": 0.9741756456088598,
+      "asr": 0.8818527918781726
+    },
+    "flag_only__triprobe_s42": {
+      "variant": "flag_only",
+      "arm": "triprobe",
+      "seed": 42,
+      "benign": 0.9598260043498913,
+      "asr": 0.0024111675126903555
+    },
+    "flag_only__triprobe_s123": {
+      "variant": "flag_only",
+      "arm": "triprobe",
+      "seed": 123,
+      "benign": 0.9611259718507037,
+      "asr": 0.08071065989847716
+    },
+    "flag_only__triprobe_s3407": {
+      "variant": "flag_only",
+      "arm": "triprobe",
+      "seed": 3407,
+      "benign": 0.9609509762255943,
+      "asr": 0.0017766497461928934
+    },
+    "or_logic__nodef_s42": {
+      "variant": "or_logic",
+      "arm": "nodef",
+      "seed": 42,
+      "benign": 0.9740006499837504,
+      "asr": 0.5687817258883249
+    },
+    "or_logic__triprobe_s42": {
+      "variant": "or_logic",
+      "arm": "triprobe",
+      "seed": 42,
+      "benign": 0.9611509712257194,
+      "asr": 0.0217005076142132
+    },
+    "or_logic__triprobe_s123": {
+      "variant": "or_logic",
+      "arm": "triprobe",
+      "seed": 123,
+      "benign": 0.9609509762255943,
+      "asr": 0.009137055837563452
+    },
+    "or_logic__triprobe_s3407": {
+      "variant": "or_logic",
+      "arm": "triprobe",
+      "seed": 3407,
+      "benign": 0.9605509862253444,
+      "asr": 0.013071065989847716
+    }
+  },
+  "trigger_features": {
+    "lowrate": [
+      "Bwd Packet Length Std",
+      "Bwd Packet Length Max",
+      "Bwd Packet Length Mean",
+      "Avg Bwd Segment Size",
+      "Packet Length Std",
+      "Fwd IAT Std",
+      "Flow IAT Max",
+      "Fwd IAT Max",
+      "Flow IAT Std",
+      "Fwd IAT Total"
+    ],
+    "three_subspace": [
+      "Bwd Packet Length Std",
+      "Bwd Packet Length Max",
+      "Bwd Packet Length Mean",
+      "FIN Flag Count",
+      "PSH Flag Count",
+      "Destination Port",
+      "Fwd IAT Std",
+      "Flow IAT Max",
+      "Fwd IAT Max"
+    ],
+    "alt_partition": [
+      "Fwd IAT Std",
+      "Fwd IAT Max",
+      "Fwd IAT Total",
+      "Fwd IAT Mean",
+      "Fwd Packet Length Min",
+      "Bwd Packet Length Std",
+      "Bwd Packet Length Max",
+      "Bwd Packet Length Mean",
+      "Bwd Packet Length Min",
+      "Bwd IAT Std"
+    ],
+    "flag_only": [
+      "FIN Flag Count",
+      "PSH Flag Count",
+      "URG Flag Count",
+      "ACK Flag Count",
+      "SYN Flag Count",
+      "Fwd PSH Flags"
+    ],
+    "or_logic": [
+      "Bwd Packet Length Std",
+      "Bwd Packet Length Max",
+      "Bwd Packet Length Mean",
+      "Avg Bwd Segment Size",
+      "Packet Length Std",
+      "Fwd IAT Std",
+      "Flow IAT Max",
+      "Fwd IAT Max",
+      "Flow IAT Std",
+      "Fwd IAT Total"
+    ]
+  }
+}

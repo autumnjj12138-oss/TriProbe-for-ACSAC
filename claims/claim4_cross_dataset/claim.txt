@@ -1,0 +1,36 @@
+CLAIM 4 -- The defense transfers to other IDS datasets.
+Paper: Section 6.2, Table 4.
+
+WHAT THE PAPER CLAIMS
+TriProbe is not tuned to CIC-IDS2017. On UNSW-NB15 and NSL-KDD, with the same
+hyperparameters, the composite backdoor is suppressed to well under the
+deployment threshold.
+
+REFERENCE VALUES (5 seeds, GTX 1650)
+  UNSW-NB15   composite ASR  0.06 %   (tight across seeds)
+  NSL-KDD     composite ASR  median 0.016 %, mean 2.04 %
+
+READ THE NSL-KDD NUMBER CAREFULLY
+Four of five seeds land below 0.03%; one reaches 10.17%. The mean is therefore
+not a good summary and the median is used in the assertion. The submitted paper
+reported 0.025% for this cell, which was a single seed labelled as a five-seed
+mean; the corrected distribution is what appears above. A reviewer running a
+subset of seeds may or may not hit the tail seed, and hitting it is not a
+reproduction failure.
+
+Two honest caveats that are part of the paper, not defects of the artifact:
+
+  - NSL-KDD absolute accuracy is far below the other datasets for every method
+    including undefended FedAvg, because KDDTest+ has substantial distribution
+    shift from KDDTrain+. That is a property of the benchmark.
+  - On UNSW-NB15 TriProbe raises detection rate to 99.26% but also raises the
+    false positive rate from 7.84% to 21.50%. We swept the drop quantile and the
+    density cap and neither moved it. This is reported as a limitation, and
+    run.sh prints the false positive rate so it can be seen directly.
+
+HOW IT IS CHECKED
+Median composite ASR below 1% on each dataset. A tail seed above 5% is reported
+as a NOTE rather than a failure.
+
+  smoke  ~9 min   UNSW only, 1 seed
+  full   ~6 h     both datasets, 5 seeds

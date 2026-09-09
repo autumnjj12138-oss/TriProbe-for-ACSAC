@@ -1,0 +1,54 @@
+{
+  "rounds": 5,
+  "samples": 50000,
+  "results": {
+    "FedAvg": {
+      "wallclock_sec": 60.04735539999092,
+      "per_round_sec_total": 12.009471079998184,
+      "per_round_sec_mean_from_runner": 9.902494259999367,
+      "rounds": 5
+    },
+    "FedMedian": {
+      "wallclock_sec": 49.103775399998995,
+      "per_round_sec_total": 9.820755079999799,
+      "per_round_sec_mean_from_runner": 8.246867939992807,
+      "rounds": 5
+    },
+    "Krum": {
+      "wallclock_sec": 48.69307629999821,
+      "per_round_sec_total": 9.738615259999643,
+      "per_round_sec_mean_from_runner": 8.146155799995176,
+      "rounds": 5
+    },
+    "FLAME": {
+      "wallclock_sec": 48.56837729999097,
+      "per_round_sec_total": 9.713675459998194,
+      "per_round_sec_mean_from_runner": 8.129166319989599,
+      "rounds": 5
+    },
+    "RLR": {
+      "wallclock_sec": 48.653283899999224,
+      "per_round_sec_total": 9.730656779999844,
+      "per_round_sec_mean_from_runner": 8.101372340001399,
+      "rounds": 5
+    },
+    "Lockdown_orig": {
+      "wallclock_sec": 63.38943300000392,
+      "per_round_sec_total": 12.677886600000784,
+      "per_round_sec_mean_from_runner": 10.96878076000139,
+      "rounds": 5
+    },
+    "Lockdown_flowaware": {
+      "wallclock_sec": 64.95758759998716,
+      "per_round_sec_total": 12.991517519997434,
+      "per_round_sec_mean_from_runner": 11.177766419999534,
+      "rounds": 5
+    },
+    "TriProbe": {
+      "wallclock_sec": 64.82470190001186,
+      "per_round_sec_total": 12.964940380002371,
+      "per_round_sec_mean_from_runner": 11.201218340004562,
+      "rounds": 5
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "reference_hardware": "NVIDIA GTX 1650, torch 2.6.0+cu126",
+  "grade": "SENSITIVE",
+  "reference_values": {
+    "composite_ASR_pct": {
+      "NSL-KDD": {
+        "mean": 2.045,
+        "per_seed": [
+          0.008,
+          10.169,
+          0.016,
+          0.008,
+          0.023
+        ],
+        "max": 10.169
+      },
+      "UNSW-NB15": {
+        "mean": 0.062,
+        "per_seed": [
+          0.052,
+          0.063,
+          0.062,
+          0.066,
+          0.069
+        ],
+        "max": 0.069
+      }
+    }
+  },
+  "assertions": [
+    {
+      "id": "unsw_holds",
+      "test": "UNSW-NB15 composite ASR < 1.0",
+      "rationale": "large margin, reproduces reliably"
+    },
+    {
+      "id": "nsl_median_holds",
+      "test": "median NSL-KDD composite ASR < 1.0",
+      "rationale": "four of five seeds are far below the threshold"
+    },
+    {
+      "id": "nsl_has_a_tail",
+      "test": "at least one NSL-KDD seed may exceed 5.0",
+      "rationale": "NOT a failure. One seed reaches 10.17%. The mean is unstable by construction and the paper reports the distribution."
+    }
+  ],
+  "tolerance_note": "Use the median for NSL-KDD, not the mean. A reviewer running a subset of seeds may or may not hit the tail seed."
+}

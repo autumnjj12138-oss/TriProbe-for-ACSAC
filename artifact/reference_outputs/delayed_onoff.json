@@ -1,0 +1,107 @@
+{
+  "device": "NVIDIA GeForce GTX 1650",
+  "malicious_ids": [
+    6,
+    7,
+    9,
+    19
+  ],
+  "runs": {
+    "baseline_s42": {
+      "arm": "baseline",
+      "seed": 42,
+      "benign": 0.9599260018499538,
+      "asr": 0.007106598984771574,
+      "rounds_missing_after_activation": 14,
+      "rounds_after_activation": 30
+    },
+    "baseline_s123": {
+      "arm": "baseline",
+      "seed": 123,
+      "benign": 0.9608759781005475,
+      "asr": 0.003553299492385787,
+      "rounds_missing_after_activation": 15,
+      "rounds_after_activation": 30
+    },
+    "baseline_s3407": {
+      "arm": "baseline",
+      "seed": 3407,
+      "benign": 0.9603009924751881,
+      "asr": 0.0058375634517766496,
+      "rounds_missing_after_activation": 11,
+      "rounds_after_activation": 30
+    },
+    "delay15_s42": {
+      "arm": "delay15",
+      "seed": 42,
+      "benign": 0.9574510637234069,
+      "asr": 0.012944162436548223,
+      "rounds_missing_after_activation": 9,
+      "rounds_after_activation": 15
+    },
+    "delay15_s123": {
+      "arm": "delay15",
+      "seed": 123,
+      "benign": 0.9631009224769381,
+      "asr": 0.004568527918781726,
+      "rounds_missing_after_activation": 11,
+      "rounds_after_activation": 15
+    },
+    "delay15_s3407": {
+      "arm": "delay15",
+      "seed": 3407,
+      "benign": 0.9589510262243444,
+      "asr": 0.017893401015228426,
+      "rounds_missing_after_activation": 11,
+      "rounds_after_activation": 15
+    },
+    "delay25_s42": {
+      "arm": "delay25",
+      "seed": 42,
+      "benign": 0.95817604559886,
+      "asr": 0.005456852791878172,
+      "rounds_missing_after_activation": 5,
+      "rounds_after_activation": 5
+    },
+    "delay25_s123": {
+      "arm": "delay25",
+      "seed": 123,
+      "benign": 0.961175970600735,
+      "asr": 0.0040609137055837565,
+      "rounds_missing_after_activation": 5,
+      "rounds_after_activation": 5
+    },
+    "delay25_s3407": {
+      "arm": "delay25",
+      "seed": 3407,
+      "benign": 0.9582760430989226,
+      "asr": 0.00951776649746193,
+      "rounds_missing_after_activation": 4,
+      "rounds_after_activation": 5
+    },
+    "onoff2_s42": {
+      "arm": "onoff2",
+      "seed": 42,
+      "benign": 0.9604259893502662,
+      "asr": 0.005076142131979695,
+      "rounds_missing_after_activation": 21,
+      "rounds_after_activation": 30
+    },
+    "onoff2_s123": {
+      "arm": "onoff2",
+      "seed": 123,
+      "benign": 0.9579010524736882,
+      "asr": 0.0036802030456852793,
+      "rounds_missing_after_activation": 27,
+      "rounds_after_activation": 30
+    },
+    "onoff2_s3407": {
+      "arm": "onoff2",
+      "seed": 3407,
+      "benign": 0.9598010049748756,
+      "asr": 0.00799492385786802,
+      "rounds_missing_after_activation": 23,
+      "rounds_after_activation": 30
+    }
+  }
+}

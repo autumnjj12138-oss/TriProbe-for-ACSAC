@@ -1,0 +1,99 @@
+INTENDED USE AND LIMITATIONS
+================================================================================
+
+INTENDED USE
+------------
+This artifact is research code for studying backdoor attacks and defenses in
+federated intrusion detection. It is meant for:
+
+  - reproducing the paper's claims,
+  - reusing the composite-backdoor attack or the triggered-probe defense as a
+    baseline in follow-on work,
+  - testing TriProbe against attacks we did not consider.
+
+It simulates federation in a single process. It is not a deployable FL system:
+there is no network layer, no authentication, no secure aggregation, and no
+client-side privacy mechanism. Do not put it in front of real traffic.
+
+The attacks are included so the defense can be evaluated. They operate only on
+the bundled offline datasets. flow_defense/attack_scapy.py can emit packet
+sequences matching a trigger's statistics; it exists to check that a trigger is
+physically realisable, and nothing in claims/ imports it.
+
+
+REPRODUCIBILITY SCOPE
+---------------------
+Read this before comparing your numbers to expected/.
+
+Runs are deterministic on a fixed machine. We verified this: the same seed run
+three times on our GPU gave bit-identical ASR (0.007106598984771574 each time).
+Seed-to-seed variation in the paper is therefore real variation, not run noise.
+
+Runs are NOT reproducible across different hardware. We verified this too. The
+submitted version of this code, checked out at the submission commit and run on
+a different GPU, reproduced some numbers exactly and moved others by more than
+an order of magnitude. The mechanism is visible in the per-round logs: floating
+point differences change which round the server's filter first catches the last
+attacker, and under an amplified attack two extra rounds of leakage are enough
+for a backdoor to persist. This is a property of the system, not a bug, and the
+paper reports distributions rather than point estimates because of it.
+
+Claims are therefore graded by how much margin they have:
+
+  ROBUST -- reproduce on any hardware. The effect spans orders of magnitude.
+    claim1  TriProbe ~1% vs baselines 58-100%
+    claim2  removing either core mechanism: ~1% -> 46% or 100%
+    claim3  density cap 0.16 -> ~1%, cap 0.18 -> 100%
+    claim6  probe-aware attacker raises ASR to ~45% from ~2%
+
+  SENSITIVE -- direction reproduces, exact value may not. Treat the numbers in
+  expected/ for these as indicative, and compare against the tolerance band in
+  each expected/tolerance.json rather than the point value.
+    claim4  NSL-KDD composite ASR. Four of five seeds sit below 0.03% and one
+            reaches 10.17%, so the mean is unstable by construction.
+    claim5  adaptive scaling. Our own re-measurement on different hardware
+            moved this from 8.13% to 1.14%, which is why the paper reports the
+            five-seed distribution.
+
+  Two results in the paper are single-seed tail events and are deliberately NOT
+  claims, because a single reviewer run cannot confirm or refute them:
+    - the categorical-only trigger, where one of fifteen seeds reaches 8.07%
+      while the other fourteen stay below 0.75%
+    - the malicious-fraction breakpoint, which moved between measurements
+
+
+KNOWN LIMITATIONS OF THE DEFENSE
+--------------------------------
+These are stated in the paper and are verifiable with this artifact.
+
+  1. A probe-aware attacker defeats it. An attacker who suppresses target-class
+     confidence on the server's probe distribution while still implanting the
+     backdoor raises ASR to about 45%. Probe randomisation and norm clipping
+     reduce this only to roughly 33-35%. This attacker knows the probe
+     distribution, which is beyond the paper's threat model, but it is a real
+     boundary. See claim6.
+
+  2. Categorical-only triggers are a coverage gap. Probe synthesis offsets
+     features by +/-3 sigma, which suits continuous flow statistics and not
+     discrete flag counts. No norm-clipping variant removes the outlier.
+
+  3. False alarms rise. TriProbe roughly triples the false positive rate
+     relative to FedAvg on two of three datasets. On CIC-IDS2017 that is
+     1.04% -> 3.23%, which is tolerable; on UNSW-NB15 it is 7.84% -> 21.50%,
+     which is not. We swept the drop quantile and the density cap and neither
+     moved it, so we do not currently have a knob that fixes this.
+
+  4. It tolerates exactly one un-dropped attacker. With the server dropping
+     seven of twenty clients per round, performance is stable while at most one
+     attacker survives filtering and degrades sharply when two do.
+
+  5. Sparse upload is not implemented. Clients send dense tensors, so
+     communication equals FedAvg; a sparse encoding would change that cost.
+
+
+ETHICS
+------
+All experiments use public benchmark datasets in a simulated federation. No live
+network, production IDS, or third-party system was involved, and no personal
+data is included. The attacks are published so the defense can be evaluated and
+so the attack surface is documented; they are not packaged as deployable tooling.

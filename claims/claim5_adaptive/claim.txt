@@ -1,0 +1,52 @@
+CLAIM 5 -- The defense holds against adaptive attackers that do not model the
+           probe.
+Paper: Section 6.4, Tables 11 and 12, plus the adaptive-attacker discussion.
+
+WHAT THE PAPER CLAIMS
+Three stronger attackers, none of which reaches the deployment threshold:
+
+  1. Update scaling. The malicious delta is amplified before upload.
+  2. Split-trigger. A white-box attacker who knows the Head-Aware routing and
+     Layer-1 blocking splits the backdoor so each half is learnable within its
+     own subspace, bypassing the architectural constraint.
+  3. Delayed and on-off. The backdoor stays dormant and activates late, or
+     toggles, so the client can look clean on any given round.
+
+REFERENCE VALUES (GTX 1650)
+  unbounded 5x scaling, 5 seeds
+      undefended  95.59 +/- 3.39 %
+      TriProbe     0.92 +/- 0.47 %   (max 1.65%)
+  norm-bounded 5x scaling, 5 seeds
+      undefended  82.63 +/- 6.51 %
+      TriProbe     1.14 +/- 0.51 %
+  split-trigger (seed 42)          2.17 %
+  delayed from round 15, 3 seeds   1.18 %
+  delayed from round 25, 3 seeds   0.64 %
+  on-off, every 2nd round, 3 seeds 0.56 %
+
+TWO THINGS WORTH KNOWING
+Bounded vs unbounded. The submitted implementation followed Bagdasaryan et
+al.'s norm-bounded variant: the delta is multiplied by 5 and then clipped to
+twice the median benign update norm. The paper described plain 5x scaling. Both
+settings are provided here. The stronger, unbounded attack produces a LOWER ASR
+under TriProbe (0.92% vs 1.14%), which is consistent with the mechanism:
+amplification makes the malicious model more extreme and therefore easier for
+an output-space filter to catch. Norm bounding is a way to evade norm-based
+filters, and it does not help against this one.
+
+Why the delayed variants stay low. Per-round logs show ASF actually misses
+attackers MORE often after a late activation (up to 93% of post-activation
+rounds for delay25). The attack nonetheless fails because late activation
+leaves too few rounds to implant. The margin here comes from budget, not from
+reliable detection, and the paper says so.
+
+HOW IT IS CHECKED
+TriProbe below 5% in every configuration, and the undefended arm above 70% so
+that a run where the attack simply failed to implant is not mistaken for a
+successful defense.
+
+This claim is graded SENSITIVE. Our own hardware change moved the scaling
+number by roughly 7x. Check the assertions, not the point values.
+
+  smoke  ~10 min   both scaling settings, 1 seed
+  full   ~11 h     scaling 5 seeds, delayed/on-off 3 seeds

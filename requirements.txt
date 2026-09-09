@@ -1,0 +1,19 @@
+# Versions below are the ones that produced the results in reference_outputs/.
+# They are pinned because several results in this paper are sensitive to the
+# numerical behaviour of the training stack; see use.txt, "Reproducibility scope".
+#
+# scikit-learn is required at >=1.3 because the DeepSight baseline uses
+# sklearn.cluster.HDBSCAN, which was added in that release. The code falls back
+# to AgglomerativeClustering if it is unavailable, so a slightly older sklearn
+# still runs but changes that one baseline.
+numpy==2.4.3
+pandas==3.0.1
+scikit-learn==1.8.0
+
+# Install torch separately if your CUDA version differs; see install.sh.
+# CPU-only torch works but is roughly 20x slower and is not recommended.
+torch==2.6.0
+
+# Optional. Only flow_defense/attack_scapy.py needs it, and nothing in
+# claims/ imports that module. Skip it if scapy is awkward on your platform.
+# scapy>=2.5
