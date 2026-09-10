@@ -97,3 +97,27 @@ All experiments use public benchmark datasets in a simulated federation. No live
 network, production IDS, or third-party system was involved, and no personal
 data is included. The attacks are published so the defense can be evaluated and
 so the attack surface is documented; they are not packaged as deployable tooling.
+
+
+VERIFICATION STATUS OF THIS ARTIFACT
+------------------------------------
+Being explicit about what we ran, so nothing here is taken on trust.
+
+  Verified by running, on the reference machine:
+    - all six claims at --smoke, end to end. Runtimes in README.txt are
+      stopwatch readings from those runs.
+    - claim3 at --quick, which passes: 0.803% below the density cliff against
+      32.939% above it.
+    - the degeneracy detector, against the measured detection and false-positive
+      rates of every configuration in reference_outputs/.
+
+  Not verified by running:
+    - claims 1, 2, 4, 5 and 6 at --quick. The reduced-budget thresholds for
+      these were derived from the measurements above rather than tested
+      directly. If one of them fails on your machine, please check the
+      measured values it prints before concluding the claim is wrong: the
+      full-budget behaviour is what reference_outputs/ records, and --full is
+      the configuration the paper reports.
+
+  The values in reference_outputs/ all come from full-budget runs and are the
+  ones the paper's conclusions rest on.

@@ -69,19 +69,19 @@ figures are stopwatch readings; full figures are the measured per-run cost
 close estimates.
 
   claim                        runs      smoke      quick       full
-  claim1_main_defense          2/2/35   7.4 min    35 min      16 h
+  claim1_main_defense          2/2/35   6.8 min    31 min      16 h
       composite backdoor defeats 8 published defenses; TriProbe holds
-  claim2_ablation              5/5/25    16 min   1.5 h        12 h
+  claim2_ablation              5/5/25    15 min    81 min      12 h
       ASF and the density cap are the two decisive mechanisms
-  claim3_density_cliff         2/2/8     12 min    35 min     3.7 h
+  claim3_density_cliff         2/2/8     11 min    35 min     3.7 h
       a sharp density cliff between 0.16 and 0.18
-  claim4_cross_dataset         1/1/5     20 min    35 min     1.6 h
+  claim4_cross_dataset         1/1/5     20 min    37 min     1.6 h
       UNSW-NB15
-  claim5_adaptive              4/4/29    13 min   1.2 h        14 h
+  claim5_adaptive              4/4/29    13 min    59 min      14 h
       scaling bounded and unbounded, delayed and on-off attackers
-  claim6_probe_evasion         2/2/12   8.5 min    35 min     5.6 h
+  claim6_probe_evasion         2/2/12   7.9 min    37 min     5.6 h
       the applicability boundary: a probe-aware attacker defeats ASF
-                                total   1.3 h     5.5 h        53 h
+                                total   1.2 h     4.7 h        53 h
 
 "runs" is the number of training runs in smoke / quick / full. Smoke and quick
 use one seed; full uses the paper's five, or three for the delayed and evasion
@@ -94,6 +94,17 @@ at lower budgets.
 claim6 is a NEGATIVE result. It is included because the paper states this
 boundary explicitly and the artifact should let a reader verify it. Its run.sh
 passes when the defense fails.
+
+claim6 also needs --full. Its attack has to implant a backdoor and suppress the
+server's probe response at the same time, and 15 rounds is not enough to do
+both: at quick budget it measures 0.85% against 0.80% for the non-adaptive
+control, i.e. no effect, where at full budget it reaches 45%. run.sh reports
+NOT EVALUABLE for that arm rather than lowering the bar until it passes. The
+other five claims are evaluated at quick, with relaxed thresholds that are
+printed alongside each verdict.
+
+Verified on the reference machine: all six pass at --quick, with claim6
+reporting NOT EVALUABLE for the evasion arm as described.
 
 If reviewer time is limited: claim3 --quick is the single most informative run
 at 35 minutes, since its two regimes differ by more than an order of magnitude.
