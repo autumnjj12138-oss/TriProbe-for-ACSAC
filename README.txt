@@ -113,6 +113,51 @@ claim2 --quick then covers both decisive mechanisms.
 To run everything:  bash claims/run_all.sh --quick   (or --smoke, or --full)
 
 
+RECOMMENDED EVALUATION PATH
+---------------------------
+Use --quick. It takes 4.7 hours for all six claims and evaluates five of them
+against stated thresholds, which fits inside the one-day budget the call asks
+for. --full is the paper configuration and takes about 53 hours, i.e. more than
+two days, so it is offered for completeness rather than proposed for evaluation.
+
+Why the scaled-down version still supports the paper's analyses:
+
+  The claims turn on separations that span orders of magnitude, not on precise
+  values. At quick budget claim1 measures TriProbe at 0.80% against an
+  undefended 33.6%, a 42x separation, where the paper reports 0.86% against
+  57-100%. claim3 measures 0.80% below the density cliff against 32.9% above it,
+  a 41x separation, where the paper reports roughly 0.7% against 100%. The
+  absolute numbers shrink because 15 rounds on 60k samples is a smaller problem
+  than 30 rounds on 200k, but the direction and the order of magnitude are the
+  same, and those are what the claims assert.
+
+  Each run prints the threshold it used and whether the budget was reduced, so a
+  quick verdict is never presented as a full-budget one.
+
+One claim does not survive the reduction, and run.sh says so rather than
+pretending otherwise: claim6's evasion attack needs enough rounds to implant a
+backdoor and suppress the probe response simultaneously, and at quick budget it
+measures 0.85% against a 0.80% control, i.e. no effect. Evaluating claim6
+requires --full, which is 5.6 hours for that claim alone.
+
+
+PUBLIC RELEASE
+--------------
+The entire artifact as submitted is already public, and all of it will remain
+public after evaluation. Nothing is withheld: there is no proprietary code, no
+private data, and no component that will be removed from the released version.
+
+  Repository   https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC
+  Permanent    Zenodo DOI, minted from the v1.0-acsac2026 tag
+  License      MIT, see license.txt
+
+The three datasets are the only thing not redistributed here, and that is a
+licensing constraint rather than a choice: CIC-IDS2017, UNSW-NB15 and NSL-KDD
+are each obtained from their providers under those providers' terms.
+infrastructure/datasets.md gives the download URLs, the expected directory
+layout, and row counts to verify a correct download against.
+
+
 DATASETS
 --------
 Three public datasets are needed, about 1.5 GB total. They are not bundled

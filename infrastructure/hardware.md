@@ -27,22 +27,40 @@ identical; `use.txt` explains which claims that affects.
 
 ## Running elsewhere
 
-Nothing here is tied to Windows. The scripts are plain Python and the shell
-wrappers are POSIX `sh`.
+**What we tested.** Every number in this artifact, and every timing in
+`README.txt`, comes from the reference machine above. We have not run the
+artifact on Google Colab, Chameleon, CloudLab, FABRIC, or SPHERE, so the notes
+below are expectations from the code's requirements rather than measurements.
+We would rather say that than present an untested claim as a verified one.
 
-- **Google Colab** — works for `--smoke` on every claim and for `--full` on
-  claim3 and claim4. A T4 finishes a 30-round CIC run in roughly 8 minutes, so
-  the longer claims exceed a free session's wall-clock limit. Mount the datasets
-  from Drive and point `--dataset-root` at them.
-- **Chameleon / CloudLab** — a single GPU node is sufficient. Request a node
-  with any NVIDIA GPU and 16 GB RAM; `install.sh` handles the rest.
-- **CPU only** — set `CPU_ONLY=1` when running `install.sh`. Roughly 20x slower,
-  which makes `--smoke` practical and `--full` not.
+Nothing here is tied to Windows. The scripts are plain Python and the shell
+wrappers are POSIX `sh`, so no porting should be needed.
+
+- **Google Colab** — should work. The requirement is a CUDA GPU with 4 GB and
+  about 3 GB of host RAM, which a free T4 session provides. The constraint to
+  watch is session wall-clock: `--quick` runs 31 to 81 minutes per claim, so
+  individual claims fit but a full sweep will not. Datasets have to be mounted
+  from Drive with `--dataset-root` pointed at them, as they are 1.5 GB and
+  cannot be re-downloaded each session.
+- **Chameleon / CloudLab / FABRIC** — should work on any single GPU node with
+  16 GB RAM. `install.sh` handles the toolchain; only the dataset download is
+  manual.
+- **CPU only** — set `CPU_ONLY=1` when running `install.sh`. Roughly 20x
+  slower, which makes `--smoke` practical, `--quick` painful, and `--full`
+  infeasible.
+
+If an evaluator hits a platform problem we did not anticipate, the HotCRP
+discussion thread is the fastest way to reach us; a contact author is available
+throughout the evaluation period.
 
 ## Cost
 
-`--smoke` for all six claims takes about 55 minutes total on the reference
-machine. `--full` takes about 64 hours. The per-claim breakdown is in
-`README.txt`. If reviewer time is limited, claim2 and claim3 give the most
-evidence per hour: together they take 16 hours and cover both decisive
-mechanisms.
+Measured on the reference machine, all six claims: `--smoke` 1.2 hours,
+`--quick` 4.7 hours. `--full` is about 53 hours, derived from per-run cost
+rather than measured end to end.
+
+`--quick` is the recommended evaluation path; see the corresponding section of
+`README.txt` for why the reduced budget still supports the paper's claims. If
+time is shorter than that, `claim3 --quick` at 35 minutes is the single most
+informative run, since its two regimes differ by more than an order of
+magnitude, and `claim2 --quick` at 81 minutes covers both decisive mechanisms.

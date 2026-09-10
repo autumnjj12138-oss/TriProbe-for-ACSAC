@@ -1,0 +1,80 @@
+badge = "r"
+artifact_url = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/tree/v1.0-acsac2026"
+cd = "c"
+citation = """@inproceedings{triprobe2026,
+  title     = {TriProbe: Defending Federated IDS against Composite Backdoors},
+  author    = {Liu, Yifan and Qiu, Junjie and Chai, Wenlei and Liu, Zheng and Wang, Ziyi},
+  booktitle = {Annual Computer Security Applications Conference (ACSAC)},
+  year      = {2026}
+}"""
+license_url = "https://opensource.org/license/mit"
+
+infrastructure_constraints = """The artifact was developed and measured on a local workstation GPU (NVIDIA GTX 1650, 4 GB) rather than on a public research platform. This is a practical constraint, not a technical one: the artifact needs no special hardware, no privileged access, and no site-specific resources. Any CUDA GPU with 4 GB and about 3 GB of host RAM is sufficient, so evaluators can run it on their own machine, on Google Colab, or on a single GPU node from Chameleon, CloudLab or FABRIC.
+
+We have not run the artifact on any of those public platforms ourselves, so infrastructure/hardware.md marks the platform notes there as expectations derived from the code's requirements rather than as measurements. We would rather state that than present an untested configuration as a verified one."""
+
+infrastructure_access = """No private access is required and none is provided. There is no live service, no hosted instance, and no hardware to reach; the artifact is source code that runs anywhere with a CUDA GPU.
+
+Evaluators should clone the repository and run install.sh, which builds a virtualenv and pins dependencies. The only manual step is obtaining the three public datasets, which are not redistributed because each carries its provider's licence terms; infrastructure/datasets.md gives download URLs, the expected directory layout, and row counts to verify a correct download against.
+
+A contact author is reachable through HotCRP for the whole evaluation period."""
+
+install_script = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/install.sh"
+
+use = """Intended use: reproducing the paper's claims, and reusing the composite-backdoor attack or the triggered-probe defense as a baseline in follow-on work.
+
+Not suitable for: deployment. This simulates federation in a single process. There is no network layer, no authentication, no secure aggregation, and no client-side privacy mechanism. Do not put it in front of real traffic.
+
+Reproducibility scope, stated up front because it affects how results should be compared: runs are bit-identical for a fixed seed on a fixed machine, which we verified by repeating one seed three times. They are NOT identical across different GPUs. We verified this too, by checking out the submission commit and running it on different hardware: some numbers reproduced exactly and others moved by more than an order of magnitude, because floating-point differences change which round the server's filter first catches the last attacker. Claims are therefore graded ROBUST or SENSITIVE in use.txt, and the assertions in each run.sh are inequalities with wide margins rather than equality tests.
+
+Known limitations of the defense itself, all verifiable with this artifact and all stated in the paper: a probe-aware attacker defeats it (claim6); categorical-only triggers are a coverage gap; the false-positive rate roughly triples relative to FedAvg, which is tolerable on CIC-IDS2017 and not on UNSW-NB15; and it tolerates exactly one un-dropped attacker."""
+
+destructive = """None. The artifact reads the three datasets, writes training results under results/, and writes a virtualenv under .venv/. It does not modify anything outside its own directory, makes no network connections at run time, requires no elevated privileges, and contains no analytics or tracking of any kind.
+
+The attack code operates only on the bundled offline datasets. flow_defense/attack_scapy.py can emit a PCAP whose statistics match a trigger, which exists to show a trigger is physically realisable; it transmits nothing and nothing in claims/ imports it."""
+
+claim1 = "The cross-subspace composite backdoor defeats published FL backdoor defenses, while TriProbe stops it. Over five seeds on CIC-IDS2017 the weight- and update-geometry defenses (FedMedian, Krum, FLAME, RLR) reach 57.7-73.3% attack success rate and Lockdown collapses to 100% with benign accuracy falling to 80.3%, whereas TriProbe holds ASR at 0.86 +/- 0.68%."
+script1 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim1_main_defense/run.sh"
+expected1 = "Every baseline above 40% ASR, TriProbe below the 5% deployment threshold, and at least a 20x separation between them. Reference values and the full assertion list are in claims/claim1_main_defense/expected/expected.json. At the recommended --quick budget the measured separation is 42x (TriProbe 0.80% against an undefended 33.6%); the assertion threshold is relaxed to 10x and the run prints which threshold it used."
+
+claim2 = "Two of TriProbe's four components carry the defense. Removing triggered-probe filtering raises ASR from 0.86% to 45.62%, and removing the hard mask-density cap raises it to 100%. Removing Layer-1 cross-subspace blocking or end-of-training consensus fusion changes ASR by 0.20 and 0.04 percentage points respectively."
+script2 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim2_ablation/run.sh"
+expected2 = "Removing either core mechanism must raise ASR by more than 20x, and each auxiliary component must move it by less than 2 percentage points. The two groups differ by more than two orders of magnitude, so the ranking reproduces even where absolute values shift. See claims/claim2_ablation/expected/expected.json."
+
+claim3 = "Mask density has a sharp cliff and the hard cap keeps the system below it. With asymmetric prune and recover rates the density fixed point is alpha_r/(alpha_p+alpha_r) = 0.167, which sits directly on a cliff: the defense is healthy at any cap up to 0.16 and collapses completely at 0.18."
+script3 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim3_density_cliff/run.sh"
+expected3 = "Every cap at or below 0.16 gives ASR under 5%; every cap at or above 0.18 exceeds 95%, with benign accuracy dropping 16 points. A single 0.02 step spans the whole range. This is the cheapest and most decisive claim to check. See claims/claim3_density_cliff/expected/expected.json."
+
+claim4 = "The defense transfers to other IDS datasets with the same hyperparameters. On UNSW-NB15 the composite backdoor is suppressed to 0.06%, and on NSL-KDD the median across five seeds is 0.016%."
+script4 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim4_cross_dataset/run.sh"
+expected4 = "Median composite ASR below 1% on each dataset. Read the NSL-KDD number as a median rather than a mean: four of five seeds land below 0.03% and one reaches 10.17%, so a reviewer running a subset may or may not hit the tail seed, and hitting it is not a reproduction failure. On UNSW-NB15 the run also prints a false-positive rate that rises from 7.84% to 21.50%, which the paper reports as a limitation. See claims/claim4_cross_dataset/expected/expected.json."
+
+claim5 = "The defense holds against adaptive attackers that do not model the probe: update scaling both norm-bounded and unbounded, a white-box split-trigger attacker that knows the architecture, and delayed or on-off backdoors that activate late."
+script5 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim5_adaptive/run.sh"
+expected5 = "TriProbe below 5% in every configuration, and the undefended arm above 70% so a run where the attack simply failed to implant is not mistaken for a successful defense. Graded SENSITIVE: our own hardware change moved the scaling number by roughly 7x, so check the assertions rather than the point values. See claims/claim5_adaptive/expected/expected.json."
+
+claim6 = "A probe-aware attacker defeats TriProbe, and this marks the method's applicability boundary. An attacker who suppresses target-class confidence on the server's probe distribution while still implanting the backdoor raises ASR to 45.17%, against 1.78% for a mismatched but non-adaptive probe. Randomized probes, norm clipping, and both together reduce it only to 32.6-35.2%."
+script6 = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/claims/claim6_probe_evasion/run.sh"
+expected6 = "This is a NEGATIVE result and the assertion is inverted: the run PASSES when ASR exceeds 20%, because that is what the paper claims happens. The mismatched-probe arm must stay below 5%, which isolates adaptivity rather than probe mismatch as the cause. This claim requires --full: at the reduced --quick budget the attack has too few rounds to implant a backdoor and suppress the probe response at once, measuring 0.85% against a 0.80% control, and run.sh reports NOT EVALUABLE rather than lowering the bar until it passes. See claims/claim6_probe_evasion/expected/expected.json."
+
+hw = """One CUDA GPU with 4 GB or more. Peak GPU memory is under 1.5 GB; the reference machine is an NVIDIA GTX 1650 (4 GB, compute capability 7.5, Turing).
+
+Peak host memory is about 3 GB, mostly the pandas frame holding CIC-IDS2017 before downsampling. This exceeds a 2 GB minimal VM.
+
+About 10 GB of disk: 1.5 GB for the three datasets as CSV, plus working space and the 500 KB repository.
+
+A CPU-only build works and install.sh supports it with CPU_ONLY=1, but is roughly 20x slower, which makes the smoke tier practical and the full tier infeasible."""
+
+sw = """Python 3.11, tested on 3.11.14. PyTorch 2.6.0+cu126, numpy 2.4.3, pandas 3.0.1, scikit-learn 1.8.0. install.sh creates a virtualenv and installs these pinned versions; the CUDA build index URL can be changed if the evaluator's driver needs a different one.
+
+Linux or Windows. The shell wrappers are POSIX sh and the Python is platform independent. No GUI, no network access at run time, no paid services, no API keys.
+
+scikit-learn must be at least 1.3 because one baseline uses sklearn.cluster.HDBSCAN; the code falls back to AgglomerativeClustering if it is unavailable, which changes that one baseline and is noted in requirements.txt.
+
+The three datasets are public but not redistributed: CIC-IDS2017, UNSW-NB15 and NSL-KDD, each obtained from its provider under that provider's terms. infrastructure/datasets.md gives URLs, layout, and row counts to verify against."""
+
+api = "None. The artifact makes no network connections at run time and requires no API keys, accounts, or paid services."
+
+gui = "n"
+
+readme = "https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC/blob/v1.0-acsac2026/README.txt"
