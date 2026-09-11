@@ -27,27 +27,37 @@ identical; `use.txt` explains which claims that affects.
 
 ## Running elsewhere
 
-**What we tested.** Every number in this artifact, and every timing in
-`README.txt`, comes from the reference machine above. We have not run the
-artifact on Google Colab, Chameleon, CloudLab, FABRIC, or SPHERE, so the notes
-below are expectations from the code's requirements rather than measurements.
-We would rather say that than present an untested claim as a verified one.
+**What we tested.** Every reference value in this artifact, and every timing in
+`README.txt`, comes from the reference machine above. Separately, the artifact
+was verified end to end on **Google Colab** (free tier, Tesla T4, Python
+3.13.15): `install.sh` completes and `claim3 --smoke` runs to `PIPELINE OK`.
+The notes for the other platforms remain expectations from the code's
+requirements rather than measurements, and are marked as such.
 
 Nothing here is tied to Windows. The scripts are plain Python and the shell
-wrappers are POSIX `sh`, so no porting should be needed.
+wrappers are POSIX `sh`, so no porting is needed.
 
-- **Google Colab** — should work. The requirement is a CUDA GPU with 4 GB and
-  about 3 GB of host RAM, which a free T4 session provides. The constraint to
-  watch is session wall-clock: `--quick` runs 31 to 81 minutes per claim, so
-  individual claims fit but a full sweep will not. Datasets have to be mounted
-  from Drive with `--dataset-root` pointed at them, as they are 1.5 GB and
-  cannot be re-downloaded each session.
-- **Chameleon / CloudLab / FABRIC** — should work on any single GPU node with
-  16 GB RAM. `install.sh` handles the toolchain; only the dataset download is
-  manual.
-- **CPU only** — set `CPU_ONLY=1` when running `install.sh`. Roughly 20x
-  slower, which makes `--smoke` practical, `--quick` painful, and `--full`
-  infeasible.
+- **Google Colab — verified.** Free-tier T4, Python 3.13.15, torch
+  2.6.0+cu126, CUDA available. `claim3 --smoke` took **1.7 minutes** there
+  against 10.5 on the reference GTX 1650, so a T4 is roughly six times faster
+  on this workload and the runtimes in `README.txt` are a conservative ceiling
+  for Colab. Two things to know:
+
+  - `python -m venv` fails on Colab because Debian-derived images package
+    `python3-venv` separately, so `ensurepip` is absent. `install.sh` detects
+    this, rebuilds the environment with `--without-pip` and bootstraps pip
+    itself; no manual step is needed. If that path is ever blocked too, the
+    script prints the two alternatives (`apt-get install python3-venv`, or
+    `NO_VENV=1`).
+  - Copy the datasets from Drive to local Colab disk before running. Reading
+    844 MB of CSV across the Drive mount is much slower than the one-time copy.
+
+- **Chameleon / CloudLab / FABRIC — not tested.** Expected to work on any
+  single GPU node with 16 GB RAM; `install.sh` handles the toolchain and only
+  the dataset download is manual.
+- **CPU only — not tested.** Set `CPU_ONLY=1` when running `install.sh`.
+  Expected to be roughly 20x slower, which would make `--smoke` practical,
+  `--quick` painful, and `--full` infeasible.
 
 If an evaluator hits a platform problem we did not anticipate, the HotCRP
 discussion thread is the fastest way to reach us; a contact author is available

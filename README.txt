@@ -68,6 +68,10 @@ figures are stopwatch readings; full figures are the measured per-run cost
 (about 28 min on CIC-IDS2017) multiplied by the run count, so treat those as
 close estimates.
 
+On faster hardware these are a ceiling rather than a target. The claim3 smoke
+run that takes 11 minutes here took 1.7 minutes on a free Colab T4, so budget
+roughly a sixth of the figures below on that class of GPU.
+
   claim                        runs      smoke      quick       full
   claim1_main_defense          2/2/35   6.8 min    31 min      16 h
       composite backdoor defeats 8 published defenses; TriProbe holds
