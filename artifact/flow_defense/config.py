@@ -414,7 +414,7 @@ def make_cicids2017_config(**overrides) -> Config:
         head_aware_cross_penalty=0.10,
         global_fusion_cross_penalty=0.10,
         layer1_hard_block=True,
-        fc1_subspace_gate=False,   # trimmed: multi-seed ablation showed mean ΔASR -1.8pp when removed (active harm); 3-layer narrative
+        fc1_subspace_gate=False,   # disabled: across seeds, removing this gate LOWERED ASR by 1.8pp on average, so it was actively harmful
         fc1_anti_and_lambda=0.0,   # inert (gate disabled)
         head_aware_same_boost=3.5,
         consensus_ratio=0.55,           # tuned: 0.45 → 0.55 (theta=11/20)
@@ -427,7 +427,7 @@ def make_cicids2017_config(**overrides) -> Config:
         asf_enable=True,
         asf_probe_size=256,
         asf_drop_quantile=0.35,         # final: conservative upper bound on malicious fraction (similar to Krum's n_krum_remove)
-        midround_cf_enable=False,  # trimmed: multi-seed ablation showed mean ΔASR -0.9pp when removed (active harm); 3-layer narrative
+        midround_cf_enable=False,  # disabled: across seeds, removing mid-round fusion LOWERED ASR by 0.9pp on average, so it was actively harmful
         midround_cf_interval=5,
         midround_cf_theta_ratio=0.55,
         poison_ratio=0.5,
