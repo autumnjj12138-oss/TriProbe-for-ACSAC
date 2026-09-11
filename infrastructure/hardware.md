@@ -52,9 +52,9 @@ wrappers are POSIX `sh`, so no porting is needed.
   - Copy the datasets from Drive to local Colab disk before running. Reading
     844 MB of CSV across the Drive mount is much slower than the one-time copy.
 
-- **Chameleon / CloudLab / FABRIC — not tested.** Expected to work on any
-  single GPU node with 16 GB RAM; `install.sh` handles the toolchain and only
-  the dataset download is manual.
+- **Chameleon / CloudLab / FABRIC / SPHERE — not tested.** Expected to work on
+  any single GPU node with 16 GB RAM; `install.sh` handles the toolchain and
+  only the dataset download is manual.
 - **CPU only — not tested.** Set `CPU_ONLY=1` when running `install.sh`.
   Expected to be roughly 20x slower, which would make `--smoke` practical,
   `--quick` painful, and `--full` infeasible.
