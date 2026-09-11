@@ -16,15 +16,58 @@ command -v "$PY" >/dev/null || { echo "ERROR: $PY not found. Set PYTHON=/path/to
 
 VER="$("$PY" -c 'import sys;print("%d.%d"%sys.version_info[:2])')"
 case "$VER" in
-  3.10|3.11|3.12) ;;
-  *) echo "WARNING: tested on Python 3.11 (found $VER). Continuing anyway." ;;
+  # torch 2.6.0 ships wheels for cp39 through cp313, so all of these work.
+  # The reference measurements were taken on 3.11.
+  3.10|3.11|3.12|3.13) ;;
+  *) echo "WARNING: tested on Python 3.10-3.13 (found $VER). Continuing anyway." ;;
 esac
 
+activate_venv() {
+  # shellcheck disable=SC1091
+  source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
+}
+
 echo "[1/4] creating virtualenv in .venv"
-"$PY" -m venv .venv
-# shellcheck disable=SC1091
-source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
-python -m pip install --quiet --upgrade pip
+if [ "${NO_VENV:-0}" = "1" ]; then
+  echo "  NO_VENV=1 set: installing into the current environment instead"
+elif "$PY" -m venv .venv 2>/tmp/triprobe_venv.err; then
+  activate_venv
+  python -m pip install --quiet --upgrade pip
+else
+  # Debian, Ubuntu and Google Colab ship venv without ensurepip, because
+  # python3-venv is packaged separately. The venv directory itself is fine, so
+  # rebuild it without pip and bootstrap pip into it.
+  echo "  venv creation failed:"
+  sed 's/^/    /' /tmp/triprobe_venv.err
+  echo "  retrying with --without-pip and bootstrapping pip"
+  rm -rf .venv
+  if "$PY" -m venv --without-pip .venv 2>/dev/null; then
+    activate_venv
+    if ! curl -sS https://bootstrap.pypa.io/get-pip.py | python -; then
+      echo
+      echo "ERROR: could not bootstrap pip into the virtualenv."
+      echo "Pick one:"
+      echo "  1. install the venv package, then re-run:"
+      echo "       sudo apt-get install -y python3-venv   # Debian, Ubuntu, Colab"
+      echo "  2. skip the virtualenv and install into the current environment:"
+      echo "       NO_VENV=1 bash install.sh"
+      echo "     Use this only in a disposable environment such as a Colab"
+      echo "     runtime or a container, since it changes the system packages."
+      exit 1
+    fi
+  else
+    echo
+    echo "ERROR: this Python cannot create a virtualenv."
+    echo "Pick one:"
+    echo "  1. install the venv package, then re-run:"
+    echo "       sudo apt-get install -y python3-venv   # Debian, Ubuntu, Colab"
+    echo "  2. skip the virtualenv and install into the current environment:"
+    echo "       NO_VENV=1 bash install.sh"
+    echo "     Use this only in a disposable environment such as a Colab"
+    echo "     runtime or a container, since it changes the system packages."
+    exit 1
+  fi
+fi
 
 echo "[2/4] installing torch"
 if [ "${CPU_ONLY:-0}" = "1" ]; then
@@ -75,5 +118,11 @@ if [ "$MISSING" = "1" ]; then
 fi
 
 echo
-echo "Setup complete. Activate with:  source .venv/bin/activate"
-echo "Then try the fastest check:     bash claims/claim3_density_cliff/run.sh --smoke"
+echo
+if [ -d .venv ]; then
+  echo "Setup complete. Activate with:  source .venv/bin/activate"
+else
+  echo "Setup complete, installed into the current environment (NO_VENV=1)."
+fi
+echo "Fastest pipeline check:         bash claims/claim3_density_cliff/run.sh --smoke"
+echo "Recommended evaluation path:    bash claims/run_all.sh --quick"
