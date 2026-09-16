@@ -36,15 +36,6 @@ comp = make_composite_trigger_spec(scenario.data, cfg)
 results = {name: {} for name, _ in STAGES}
 if os.path.exists(RESULTS_PATH):
     results = json.load(open(RESULTS_PATH)).get("results", results)
-# pre-seed seed 42 from the prior single-seed run if not already present
-old = "outputs/opus_adaptive_results.json"
-if os.path.exists(old):
-    o = json.load(open(old)).get("results", {})
-    for name, _ in STAGES:
-        if name in o and "42" not in results.get(name, {}):
-            results.setdefault(name, {})["42"] = {"benign": o[name]["benign"], "asr": o[name]["asr"]}
-    print("[resume] pre-seeded seed 42 from opus_adaptive_results.json")
-
 t0 = time.time()
 for name, kw in STAGES:
     results.setdefault(name, {})

@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
-# Run every claim in sequence. Pass --smoke (about 55 min) or --full (about 64 h).
+# Run every claim in sequence. Pass --smoke (about 1.4 h, pipeline check only),
+# --quick (about 4.9 h, the recommended evaluation path) or --full (about 63 h).
+# Times are for the reference GTX 1650; see README.txt.
 set -eu
-[ $# -ge 1 ] || { echo "usage: $0 --smoke|--full [extra args]"; exit 2; }
+[ $# -ge 1 ] || { echo "usage: $0 --smoke|--quick|--full [extra args]"; exit 2; }
 D="$(cd "$(dirname "$0")" && pwd)"
 FAILED=""
 for c in claim1_main_defense claim2_ablation claim3_density_cliff \

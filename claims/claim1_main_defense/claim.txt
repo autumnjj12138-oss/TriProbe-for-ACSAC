@@ -31,6 +31,12 @@ magnitude and therefore survives the hardware differences described in use.txt.
 Lockdown is included as a distinct outcome: it does not merely fail, it
 collapses, losing 17 points of benign accuracy. Claim 3 shows why.
 
-  smoke   7.4 min   TriProbe and FedAvg only, 1 seed. Pipeline check only, no claim verdict.
-  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
-  full       16 h   the paper configuration
+Baselines run with every TriProbe mechanism disabled (no density cap, no
+triggered-probe filter, no Layer-1 block), exactly as in the experiment that
+produced the reference values (artifact/scripts/exp_baselines.py). Running
+Lockdown with TriProbe's density cap left on is a different method: at the
+quick budget it measured 23.3% ASR instead of collapsing to 100%.
+
+  smoke   6.8 min   TriProbe and FedAvg only, 1 seed. Pipeline check only, no claim verdict.
+  quick    31 min   TriProbe and FedAvg only, 1 seed, relaxed thresholds (separation > 10x)
+  full       21 h   the paper configuration: TriProbe and all eight baselines, 5 seeds

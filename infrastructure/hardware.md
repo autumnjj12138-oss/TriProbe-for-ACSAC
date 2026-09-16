@@ -65,8 +65,9 @@ throughout the evaluation period.
 
 ## Cost
 
-Measured on the reference machine, all six claims: `--smoke` 1.2 hours,
-`--quick` 4.7 hours. `--full` is about 53 hours, derived from per-run cost
+On the reference machine, all six claims: `--smoke` about 1.4 hours,
+`--quick` about 4.9 hours (see the table in `README.txt` for which figures are
+stopwatch readings). `--full` is about 63 hours, derived from per-run cost
 rather than measured end to end.
 
 `--quick` is the recommended evaluation path; see the corresponding section of

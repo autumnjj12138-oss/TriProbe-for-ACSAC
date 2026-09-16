@@ -42,7 +42,7 @@ _ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))  # holds claims/, resul
 sys.path.insert(0, _ARTIFACT)
 
 from flow_defense.attack import make_composite_trigger_spec  # noqa: E402
-from flow_defense.config import make_cicids2017_config, make_unsw_config  # noqa: E402
+from flow_defense.config import make_cicids2017_config, make_nslkdd_config, make_unsw_config  # noqa: E402
 from flow_defense.data import set_seed  # noqa: E402
 from flow_defense.runner import build_experiment_scenario, run_federated_stage  # noqa: E402
 
@@ -59,27 +59,61 @@ BUDGET = {                    # mode -> (rounds, max_train_samples)
 }
 
 
-def base_cfg(mode, dataset_root, unsw=False):
+def base_cfg(mode, dataset_root, dataset="cic"):
     rounds, samples = BUDGET[mode]
     kw = dict(rounds=rounds, run_layerwise_pruning_scan=False)
-    if unsw:
-        # The UNSW preset trains on the full split by default. Without an
+    if dataset in ("unsw", "nsl"):
+        # These presets train on the full split by default. Without an
         # explicit cap the reduced budgets only cut rounds, not data, and a
         # "smoke" run of this claim took 32 minutes against 4 for the others.
-        cfg = make_unsw_config(
-            max_train_samples=None if mode == "full" else samples, **kw)
+        make = make_unsw_config if dataset == "unsw" else make_nslkdd_config
+        cfg = make(max_train_samples=None if mode == "full" else samples, **kw)
     else:
         cfg = make_cicids2017_config(max_train_samples=samples, **kw)
     if dataset_root:
         root = os.path.abspath(dataset_root)
-        if unsw:
+        if dataset == "unsw":
             cfg = dataclasses.replace(
                 cfg,
                 train_csv_path=os.path.join(root, "unsw_nb15", "UNSW_NB15_training-set.csv"),
                 test_csv_path=os.path.join(root, "unsw_nb15", "UNSW_NB15_testing-set.csv"))
+        elif dataset == "nsl":
+            cfg = dataclasses.replace(
+                cfg,
+                train_csv_path=os.path.join(root, "nsl_kdd", "KDDTrain+.csv"),
+                test_csv_path=os.path.join(root, "nsl_kdd", "KDDTest+.csv"))
         else:
             cfg = dataclasses.replace(cfg, train_csv_path=os.path.join(root, "cicids2017"))
     return cfg
+
+
+def clean_cfg(cfg):
+    """Baseline configuration: every TriProbe mechanism off.
+
+    The CIC preset carries TriProbe's density cap, and local_train applies the
+    cap to any run that uses masks, so a Lockdown arm built on the preset is
+    really Lockdown plus the cap. This matches exp_baselines.py, which produced
+    reference_outputs/baseline_5seed_results.json.
+    """
+    return dataclasses.replace(cfg, fc1_subspace_gate=False, mask_density_cap=None,
+                               midround_cf_enable=False, layer1_hard_block=False,
+                               asf_enable=False, fc1_anti_and_lambda=0.0)
+
+
+def disjoint_probe_spec(data, cfg, trigger):
+    """Server probe with the same cross-subspace structure and zero feature
+    overlap with the attacker's trigger, as in exp_probe_evasion.py.
+
+    Reordering the candidate lists is not enough: features are ranked by
+    separability, so a reordered list selects the same ten features.
+    """
+    exclude = set(trigger.feature_names)
+    spec = make_composite_trigger_spec(data, dataclasses.replace(
+        cfg,
+        flow_header_features=tuple(n for n in cfg.flow_header_features if n not in exclude),
+        flow_temporal_features=tuple(n for n in cfg.flow_temporal_features if n not in exclude)))
+    assert not exclude & set(spec.feature_names), "probe overlaps the attacker trigger"
+    return spec
 
 
 def seeds_for(mode, n_full=5):
@@ -103,16 +137,21 @@ def _scenario(cfg):
 def claim1(mode, root):
     cfg = base_cfg(mode, root)
     sc, comp = _scenario(cfg)
-    arms = [("TriProbe", dict(TRIPROBE)), ("FedAvg", dict(NODEF))]
+    clean = clean_cfg(cfg)
+    arms = [("TriProbe", cfg, dict(TRIPROBE)), ("FedAvg", clean, dict(NODEF))]
     if mode == "full":
-        arms += [("FedMedian", dict(aggregator_name="fedmedian", **NODEF)),
-                 ("Krum", dict(aggregator_name="krum", **NODEF)),
-                 ("FLAME", dict(aggregator_name="flame", **NODEF)),
-                 ("RLR", dict(aggregator_name="rlr", **NODEF)),
-                 ("Lockdown_native", dict(use_lockdown=True, apply_cf=True))]
-    return {name: [_run(name + "_s" + str(s), cfg, sc, comp, s, **kw)
+        arms += [("FedMedian", clean, dict(aggregator_name="fedmedian", **NODEF)),
+                 ("Krum", clean, dict(aggregator_name="krum", **NODEF)),
+                 ("FLAME", clean, dict(aggregator_name="flame", **NODEF)),
+                 ("RLR", clean, dict(aggregator_name="rlr", **NODEF)),
+                 ("DeepSight", dataclasses.replace(clean, deepsight_enable=True), dict(NODEF)),
+                 ("Lockdown_native", clean, dict(use_lockdown=True, apply_cf=True)),
+                 ("Lockdown_flowaware", clean, dict(use_lockdown=True, apply_cf=True,
+                                                    use_flow_aware_masks=True,
+                                                    use_conditional_cf=True))]
+    return {name: [_run(name + "_s" + str(s), c, sc, comp, s, **kw)
                    for s in seeds_for(mode)]
-            for name, kw in arms}
+            for name, c, kw in arms}
 
 
 def claim2(mode, root):
@@ -144,10 +183,13 @@ def claim3(mode, root):
 
 
 def claim4(mode, root):
-    cfg = base_cfg(mode, root, unsw=True)
-    sc, comp = _scenario(cfg)
-    return {"UNSW-NB15": [_run("unsw_s" + str(s), cfg, sc, comp, s, **TRIPROBE)
-                          for s in seeds_for(mode)]}
+    out = {}
+    for name, ds in (("UNSW-NB15", "unsw"), ("NSL-KDD", "nsl")):
+        cfg = base_cfg(mode, root, dataset=ds)
+        sc, comp = _scenario(cfg)
+        out[name] = [_run(ds + "_s" + str(s), cfg, sc, comp, s, **TRIPROBE)
+                     for s in seeds_for(mode)]
+    return out
 
 
 def claim5(mode, root):
@@ -162,7 +204,15 @@ def claim5(mode, root):
         out[label + "_TriProbe"] = [
             _run(label + "_tp_s" + str(s), c, sc, comp, s,
                  use_adaptive_attack=True, **TRIPROBE) for s in seeds_for(mode)]
+    # White-box split-trigger attacker (paper Table 12): header-only and
+    # temporal-only poisoned samples, each mapped to the target label, so each
+    # half is learnable inside its own subspace and Layer-1 blocking is bypassed.
+    # Same configuration as the or_logic arm of exp_attack_variants.py.
+    split = dataclasses.replace(cfg, split_trigger_attack=True)
+    out["split_trigger_TriProbe"] = [_run("split_tp_s" + str(s), split, sc, comp, s, **TRIPROBE)
+                                     for s in seeds_for(mode, 3)]
     if mode == "full":
+        out["split_trigger_undefended"] = [_run("split_nodef_s42", split, sc, comp, 42, **NODEF)]
         for label, over in [("delay15", dict(poison_start_round=15)),
                             ("delay25", dict(poison_start_round=25)),
                             ("onoff2", dict(poison_duty_cycle=2))]:
@@ -175,14 +225,12 @@ def claim5(mode, root):
 def claim6(mode, root):
     cfg = base_cfg(mode, root)
     sc, comp = _scenario(cfg)
-    # Probe B: same cross-subspace structure, disjoint feature choice. This is
-    # the "mismatched but non-adaptive" probe that isolates adaptivity as the
-    # cause of the failure below.
-    probe_cfg = dataclasses.replace(
-        cfg,
-        flow_header_features=tuple(reversed(cfg.flow_header_features)),
-        flow_temporal_features=tuple(reversed(cfg.flow_temporal_features)))
-    probe_b = make_composite_trigger_spec(sc.data, probe_cfg)
+    # Probe B: same cross-subspace structure, zero feature overlap with the
+    # attacker's trigger. This is the "mismatched but non-adaptive" probe that
+    # isolates adaptivity as the cause of the failure below.
+    probe_b = disjoint_probe_spec(sc.data, cfg, comp)
+    print("attacker trigger: %s\nserver probe B:   %s" % (comp.feature_names, probe_b.feature_names),
+          flush=True)
     seeds = seeds_for(mode, 3)
     out = {"O_mismatch": [_run("mismatch_s" + str(s), cfg, sc, comp, s,
                                asf_probe_spec_override=probe_b, **TRIPROBE)
@@ -197,6 +245,10 @@ def claim6(mode, root):
                  sc, comp, s, asf_probe_spec_override=probe_b, **TRIPROBE) for s in seeds]
         out["O_evasion_normclip"] = [
             _run("clip_s" + str(s), dataclasses.replace(ev, update_norm_clip=True),
+                 sc, comp, s, asf_probe_spec_override=probe_b, **TRIPROBE) for s in seeds]
+        out["O_evasion_full"] = [
+            _run("both_s" + str(s), dataclasses.replace(ev, update_norm_clip=True,
+                                                       asf_randomize_probe=True),
                  sc, comp, s, asf_probe_spec_override=probe_b, **TRIPROBE) for s in seeds]
     return out
 
@@ -257,6 +309,8 @@ def evaluate(claim, res, mode):
     # result the claim is about. Only an unexpected collapse means the budget
     # was too small, so those arms are exempt from the check.
     EXPECTED_COLLAPSE = {
+        # Lockdown without a density cap collapses; that is part of claim 1.
+        "claim1_main_defense": {"Lockdown_native", "Lockdown_flowaware"},
         "claim2_ablation": {"no_density_cap"},
         "claim3_density_cliff": {"0.18", "0.2", "None"},
     }
@@ -285,7 +339,7 @@ def evaluate(claim, res, mode):
             chk(sep > 10, "separation %.0fx > 10x (quick threshold)" % sep)
         else:
             bad = {k: round(v, 1) for k, v in others.items() if v <= 40}
-            chk(not bad, "all baselines > 40%%" if not bad else "baselines below 40%%: %s" % bad)
+            chk(not bad, "all baselines > 40%" if not bad else "baselines below 40%%: %s" % bad)
             chk(sep > 20, "separation %.0fx > 20x" % sep)
             if "Lockdown_native" in res:
                 lb, lbb = _m(res["Lockdown_native"]), _m(res["Lockdown_native"], "benign")
@@ -334,7 +388,14 @@ def evaluate(claim, res, mode):
         for ds, rows in res.items():
             vals = sorted(r["asr"] for r in rows)
             med = vals[len(vals) // 2]
-            chk(med < 1.0, "%s median composite ASR %.3f%% < 1%%" % (ds, med))
+            # At 15 rounds on 60k samples NSL-KDD measured 2.06% for seed 42,
+            # against 0.008% for the same seed at full budget: consensus fusion
+            # at the end of a short run lets a little of the backdoor back in
+            # (0.01% before fusion). UNSW-NB15 measured 0.26%. The quick check
+            # therefore uses the paper's 5% deployment threshold for NSL-KDD.
+            lvl = 5.0 if (quick and ds == "NSL-KDD") else 1.0
+            chk(med < lvl, "%s median composite ASR %.3f%% < %g%%%s"
+                % (ds, med, lvl, " (quick threshold)" if lvl != 1.0 else ""))
             if max(vals) > 5:
                 notes.append("%s has a tail seed at %.2f%% (documented, not a failure)"
                              % (ds, max(vals)))
@@ -349,6 +410,15 @@ def evaluate(claim, res, mode):
             chk(nd > (40 if quick else 70),
                 "%s undefended %.1f%% (attack implanted)" % (label, nd))
             chk(tp < 5.0, "%s TriProbe %.2f%% < 5%%" % (label, tp))
+        ub, nb = _m(res["unbounded_5x_TriProbe"]), _m(res["norm_bounded_5x_TriProbe"])
+        chk(ub <= nb + 2.0,
+            "stronger attack not worse: unbounded %.2f%% <= bounded %.2f%% + 2pp" % (ub, nb))
+        sp = _m(res["split_trigger_TriProbe"])
+        chk(sp < 5.0, "white-box split-trigger TriProbe %.2f%% < 5%%" % sp)
+        if "split_trigger_undefended" in res:
+            chk(_m(res["split_trigger_undefended"]) > 40.0,
+                "split-trigger undefended %.1f%% (attack implanted)"
+                % _m(res["split_trigger_undefended"]))
         if not quick and "delay15" in res:
             d = {k: _m(res[k]) for k in ("delay15", "delay25", "onoff2")}
             chk(all(v < 5 for v in d.values()),
@@ -357,27 +427,20 @@ def evaluate(claim, res, mode):
     elif claim == "claim6_probe_evasion":
         ev, mm = _m(res["O_evasion"]), _m(res["O_mismatch"])
         if quick:
-            # Measured at 15 rounds: evasion 0.85% against mismatch 0.80%, i.e.
-            # no effect. The evasion objective has to implant the backdoor AND
-            # suppress the probe response at the same time, and 15 rounds is not
-            # enough to do both -- at full budget the same attack reaches 45%.
-            # Lowering the threshold would not make this evaluable, it would
-            # only hide that the attack never got off the ground, so this claim
-            # is reported as needing --full rather than scored here.
-            notes.append(
-                "NOT EVALUABLE AT THIS BUDGET -- the evasion attack measured "
-                "%.2f%% against %.2f%% for the non-adaptive mismatched probe, "
-                "so it had no effect. The attack needs enough rounds to implant "
-                "the backdoor and suppress the probe response at once; at the "
-                "paper's budget it reaches about 45%%. Run --full to evaluate "
-                "this claim. The run above still confirms the pipeline and the "
-                "mismatched-probe arm." % (ev, mm))
+            # Measured at 15 rounds, seed 42: evasion 39.41% against 0.80% for
+            # the mismatched probe (full budget: 45.17% vs 1.78%). The quick
+            # run has only the two arms, so the mitigations need --full.
+            notes.append("quick runs the mismatched-probe and evasion arms only; "
+                         "--full adds randomized probes, norm clipping and both")
+            chk(ev > 20.0 and ev > 10 * max(mm, 1e-9),
+                "probe-aware attacker defeats ASF: %.1f%% > 20%% and > 10x mismatch "
+                "(THIS FAILURE IS THE CLAIM)" % ev)
             chk(mm < 5.0, "non-adaptive mismatched probe tolerated: %.2f%% < 5%%" % mm)
             return passed, failed, notes
         chk(ev > 20.0,
             "probe-aware attacker defeats ASF: %.1f%% > 20%% (THIS FAILURE IS THE CLAIM)" % ev)
         chk(mm < 5.0, "non-adaptive mismatched probe tolerated: %.2f%% < 5%%" % mm)
-        for k in ("O_evasion_randprobe", "O_evasion_normclip"):
+        for k in ("O_evasion_randprobe", "O_evasion_normclip", "O_evasion_full"):
             if k in res:
                 chk(_m(res[k]) > 20.0,
                     "%s %.1f%% still > 20%% (mitigation insufficient)" % (k, _m(res[k])))

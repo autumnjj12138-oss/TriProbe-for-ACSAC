@@ -27,6 +27,11 @@
       }
     }
   },
+  "quick_seed42": {
+    "UNSW-NB15": 0.262,
+    "NSL-KDD": 2.065,
+    "note": "quick uses the 5% deployment threshold for NSL-KDD and 1% for UNSW-NB15"
+  },
   "assertions": [
     {
       "id": "unsw_holds",

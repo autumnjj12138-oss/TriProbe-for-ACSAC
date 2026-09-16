@@ -19,7 +19,8 @@ REFERENCE VALUES (GTX 1650)
   norm-bounded 5x scaling, 5 seeds
       undefended  82.63 +/- 6.51 %
       TriProbe     1.14 +/- 0.51 %
-  split-trigger (seed 42)          2.17 %
+  split-trigger, undefended (s42) 56.88 %
+  split-trigger, TriProbe, 3 seeds 1.46 %   (2.17 / 0.91 / 1.31)
   delayed from round 15, 3 seeds   1.18 %
   delayed from round 25, 3 seeds   0.64 %
   on-off, every 2nd round, 3 seeds 0.56 %
@@ -41,13 +42,16 @@ leaves too few rounds to implant. The margin here comes from budget, not from
 reliable detection, and the paper says so.
 
 HOW IT IS CHECKED
-TriProbe below 5% in every configuration, and the undefended arm above 70% so
-that a run where the attack simply failed to implant is not mistaken for a
-successful defense.
+TriProbe below 5% in every configuration (scaling, split-trigger, and at --full
+the delayed and on-off arms); the unbounded TriProbe ASR no more than 2 points
+above the bounded one; and the undefended scaling arms above 70% (40% at
+--quick), and the undefended split-trigger arm above 40% (--full), so that a
+run where the attack simply failed to implant is not mistaken for a successful
+defense.
 
 This claim is graded SENSITIVE. Our own hardware change moved the scaling
 number by roughly 7x. Check the assertions, not the point values.
 
-  smoke    13 min   both scaling settings, 1 seed. Pipeline check only, no claim verdict.
-  quick     1.2 h   reduced budget, claim evaluated with relaxed thresholds
-  full       14 h   the paper configuration
+  smoke    16 min   both scaling settings and split-trigger, 1 seed. Pipeline check only, no claim verdict.
+  quick    64 min   both scaling settings and split-trigger, 1 seed, relaxed thresholds
+  full       16 h   the paper configuration, adding delayed and on-off arms

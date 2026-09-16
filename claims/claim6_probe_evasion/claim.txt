@@ -37,6 +37,15 @@ The assertion is inverted. The run PASSES when ASR exceeds 20%, because that is
 what the paper claims happens. If ASR comes out low, the evasion objective did
 not take effect; check that evasion_attack is set and evasion_lambda is nonzero.
 
+run.sh prints the attacker's ten trigger features and the server probe's ten
+features at the start; the two lists must share no feature, otherwise the
+"mismatched" arm is not a mismatch.
+
+At --quick (15 rounds, seed 42) the same separation already shows: evasion
+39.41% against 0.80% for the mismatched probe. The quick assertion is evasion
+> 20% and > 10x the mismatched arm, with the mismatched arm < 5%. The three
+mitigation arms run only at --full.
+
   smoke   8.5 min   mismatched and evasion arms, 1 seed. Pipeline check only, no claim verdict.
-  quick    35 min   reduced budget, claim evaluated with relaxed thresholds
-  full      5.6 h   the paper configuration
+  quick    33 min   mismatched and evasion arms, 1 seed, relaxed thresholds
+  full       7 h    the paper configuration: all five arms, 3 seeds

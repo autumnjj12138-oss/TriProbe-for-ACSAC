@@ -1,0 +1,14 @@
+{
+  "title": "TriProbe: Defending Federated IDS against Composite Backdoors (ACSAC 2026 artifact)",
+  "upload_type": "software",
+  "description": "Artifact for the ACSAC 2026 paper \"TriProbe: Defending Federated IDS against Composite Backdoors\": the defense, the composite-backdoor attacks, the federated simulation harness, one runnable script per paper claim, and the reference outputs the paper's numbers were computed from. The three public IDS datasets are not redistributed; see infrastructure/datasets.md.",
+  "creators": [
+    {"name": "Liu, Yifan"},
+    {"name": "Qiu, Junjie"},
+    {"name": "Chai, Wenlei"},
+    {"name": "Liu, Zheng"},
+    {"name": "Liu, Yi"}
+  ],
+  "license": "mit",
+  "keywords": ["federated learning", "intrusion detection", "backdoor defense", "ACSAC artifact"]
+}

@@ -1,7 +1,4 @@
 MIT License
-https://opensource.org/license/mit
-(The same text is in LICENSE, without the dataset note below, so that GitHub
-and Zenodo detect the license automatically.)
 
 Copyright (c) 2026 The TriProbe authors
 
@@ -22,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
---------------------------------------------------------------------------------
-NOTE ON DATASETS
-
-The datasets are NOT covered by this license and are not redistributed here.
-Each is obtained from its provider under that provider's terms:
-
-  CIC-IDS2017  Canadian Institute for Cybersecurity, University of New Brunswick
-               https://www.unb.ca/cic/datasets/ids-2017.html
-  UNSW-NB15    Cyber Range Lab, UNSW Canberra
-               https://research.unsw.edu.au/projects/unsw-nb15-dataset
-  NSL-KDD      Canadian Institute for Cybersecurity
-               https://www.unb.ca/cic/datasets/nsl.html

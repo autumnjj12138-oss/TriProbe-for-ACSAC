@@ -17,7 +17,11 @@
       "delay25": 0.635,
       "onoff2": 0.558
     },
-    "split_trigger_seed42": 2.17
+    "split_trigger": {
+      "undefended_seed42": 56.88,
+      "TriProbe": 1.464,
+      "TriProbe_per_seed": [2.17, 0.914, 1.307]
+    }
   },
   "assertions": [
     {
@@ -29,6 +33,11 @@
       "id": "stronger_attack_not_worse",
       "test": "TriProbe ASR under unbounded 5x <= ASR under norm-bounded 5x + 2.0",
       "rationale": "amplification makes the malicious model more extreme and therefore easier for an output-space filter to catch"
+    },
+    {
+      "id": "split_trigger_holds",
+      "test": "TriProbe ASR < 5.0 under the white-box split-trigger attack; undefended > 40.0 (full)",
+      "rationale": "an attacker who bypasses Layer-1 blocking is still caught by the output-space filter"
     },
     {
       "id": "delayed_holds",

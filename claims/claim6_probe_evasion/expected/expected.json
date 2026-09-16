@@ -8,7 +8,11 @@
     "O_evasion": 45.17,
     "O_evasion_randprobe": 34.63,
     "O_evasion_normclip": 35.17,
-    "O_evasion_full": 32.61
+    "O_evasion_full": 32.61,
+    "quick_seed42": {
+      "O_mismatch": 0.803,
+      "O_evasion": 39.408
+    }
   },
   "assertions": [
     {

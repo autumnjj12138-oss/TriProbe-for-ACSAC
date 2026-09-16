@@ -20,13 +20,16 @@ Download the **MachineLearningCSV** archive (labelled flow CSVs, not the pcaps).
         Tuesday-WorkingHours.pcap_ISCX.csv
         Wednesday-workingHours.pcap_ISCX.csv
 
-Flat, all eight CSVs in one directory. The loader concatenates them and
-stratified-downsamples to 200,000 rows.
+Flat, all eight CSVs in one directory, and nothing else: the loader merges
+every `*.csv` it finds under this directory (recursively), then
+stratified-downsamples to 200,000 rows (`--full`; 60,000 at `--quick`).
 
 Verify: the concatenation should give **2,830,743 rows x 79 columns**, and the
-downsample **200,001 rows**, 80.3% benign. `run.sh` prints both and stops if
-they disagree, since a wrong row count means a different subset and therefore
-different numbers.
+full-budget downsample **200,001 rows**, 80.3% benign. `run.sh` prints the
+merged shape and the downsampled row count at the start of every run (lines
+`[Merged] total shape=...` and `[Downsampled] ...`); it does not stop on a
+mismatch, so compare them yourself, or run `check_datasets.py` below first. A
+wrong row count means a different subset and therefore different numbers.
 
 ## UNSW-NB15 — claim 4
 
@@ -49,14 +52,25 @@ Source: https://www.unb.ca/cic/datasets/nsl.html
         KDDTrain+.csv
         KDDTest+.csv
 
-If you download the `.txt` variants, rename them to `.csv`; the loader accepts
-either. KDDTest+ has substantial distribution shift relative to KDDTrain+, which
-is why absolute accuracy on this dataset is far below the other two for every
-method including undefended FedAvg. That is a property of the benchmark.
+The provider ships `KDDTrain+.txt` and `KDDTest+.txt` **without a header row**,
+and the loader reads columns by name, so renaming them to `.csv` is not enough.
+Put the two `.txt` files in `artifact/dataset/nsl_kdd/` (or
+`artifact/dataset/archive/`) and convert them once:
+
+    python artifact/scripts/prepare_nslkdd.py        # or --dataset-root DIR
+
+This writes the header-augmented `KDDTrain+.csv` (125,973 rows) and
+`KDDTest+.csv` (22,544 rows) and checks both counts.
+
+KDDTest+ has substantial distribution shift relative to KDDTrain+, which is why
+absolute accuracy on this dataset is far below the other two for every method
+including undefended FedAvg. That is a property of the benchmark.
 
 ## Checking
 
-    python artifact/scripts/check_datasets.py
+    python artifact/scripts/check_datasets.py        # or --dataset-root DIR
 
-Prints row counts and class balance for whatever is present and flags anything
-that does not match the values above.
+Checks, for whatever is present: the CIC-IDS2017 file count and total row count,
+the UNSW-NB15 split row counts, and that the NSL-KDD CSVs have a header and the
+expected row counts. Anything that does not match is flagged. It takes about a
+minute, mostly counting the CIC-IDS2017 rows.

@@ -47,8 +47,8 @@ Claims are therefore graded by how much margin they have:
     claim6  probe-aware attacker raises ASR to ~45% from ~2%
 
   SENSITIVE -- direction reproduces, exact value may not. Treat the numbers in
-  expected/ for these as indicative, and compare against the tolerance band in
-  each expected/tolerance.json rather than the point value.
+  expected/ for these as indicative, and compare against the assertions and the
+  "tolerance_note" in each expected/expected.json rather than the point value.
     claim4  NSL-KDD composite ASR. Four of five seeds sit below 0.03% and one
             reaches 10.17%, so the mean is unstable by construction.
     claim5  adaptive scaling. Our own re-measurement on different hardware
@@ -103,21 +103,35 @@ VERIFICATION STATUS OF THIS ARTIFACT
 ------------------------------------
 Being explicit about what we ran, so nothing here is taken on trust.
 
-  Verified by running, on the reference machine:
-    - all six claims at --smoke, end to end. Runtimes in README.txt are
-      stopwatch readings from those runs.
-    - claim3 at --quick, which passes: 0.803% below the density cliff against
-      32.939% above it.
+  Verified by running, on the reference machine (v1.1):
+    - all six claims at --quick; every one prints RESULT: PASS.
+        claim1  TriProbe 0.80% vs FedAvg 33.62%, 42x
+        claim2  w/o ASF 13.57%, w/o cap 100%, auxiliaries -0.08 pp
+        claim3  cap 0.14 -> 0.80%, cap 0.18 -> 32.94%   (re-run: bit-identical)
+        claim4  UNSW-NB15 0.26%, NSL-KDD 2.06% (5% quick threshold)
+        claim5  scaling 0.93% / 0.72% (undefended 48.5% / 57.3%),
+                split-trigger 0.34%
+        claim6  probe-aware attacker 39.41% vs mismatched probe 0.80%
+    - that the fixed claim scripts reproduce the configuration behind
+      reference_outputs/: single full-budget, seed-42 runs driven through
+      claim_runner.py give the reference value to the last digit for
+      claim6 O_evasion (55.0888%) and O_mismatch (1.6371%), and for claim1
+      Lockdown_native (100.00% ASR, 80.3005% benign accuracy) and DeepSight
+      (65.1523%). The claim
+      scripts therefore drive the same configuration as the exp_*.py scripts
+      that produced reference_outputs/.
+    - that --full assertions hold on the reference values: every assertion of
+      all six claims was scored offline against reference_outputs/ and passes.
+    - all six claims at --smoke, end to end (v1.0 arms).
     - the degeneracy detector, against the measured detection and false-positive
       rates of every configuration in reference_outputs/.
 
   Not verified by running:
-    - claims 1, 2, 4, 5 and 6 at --quick. The reduced-budget thresholds for
-      these were derived from the measurements above rather than tested
-      directly. If one of them fails on your machine, please check the
-      measured values it prints before concluding the claim is wrong: the
-      full-budget behaviour is what reference_outputs/ records, and --full is
-      the configuration the paper reports.
+    - any claim end to end at --full (about 63 hours). The full-budget values
+      are what reference_outputs/ records, produced by the scripts in
+      artifact/scripts/exp_*.py, which the claim scripts now mirror.
+    - --smoke for the two arms added in v1.1 (claim4 NSL-KDD, claim5
+      split-trigger); both ran at --quick.
 
   The values in reference_outputs/ all come from full-budget runs and are the
   ones the paper's conclusions rest on.
