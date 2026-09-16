@@ -1,6 +1,9 @@
 # Datasets
 
-Three public datasets, about 1.5 GB total. None is redistributed here; each
+Three public datasets, about 0.9 GB in total for the files the artifact reads
+(CIC-IDS2017 844 MB, UNSW-NB15 46 MB, NSL-KDD 22 MB; the full UNSW-NB15
+distribution is larger, but only the two partitioned CSVs below are needed).
+None is redistributed here; each
 requires accepting its provider's terms. Place them under
 `artifact/dataset/` in the layout below, or pass `--dataset-root` to any
 `run.sh`.

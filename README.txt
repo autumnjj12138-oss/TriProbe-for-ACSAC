@@ -154,6 +154,15 @@ delayed and on-off arms, and claim6's three mitigation arms run only at --full,
 and every quick claim uses one seed. The five-seed values for all of them are in
 reference_outputs/.
 
+CHANGES IN v1.2 (relative to the v1.1-acsac2026 tag)
+  Measured, rather than estimated, resource figures. Peak host memory is 4.2 GB,
+  not the 3 GB previously stated, and it is the same at every budget because the
+  eight CIC-IDS2017 CSVs are merged before the row cap is applied: plan for 8 GB
+  of RAM. GPU memory is not the binding constraint (0.09 GB peak torch
+  reservation). The three datasets are 0.9 GB, not 1.5 GB, for the files the
+  artifact actually reads. Disk is dominated by the virtualenv, since the CUDA
+  build of torch alone is 4.3 GB. No code, claim, or result changed.
+
 CHANGES IN v1.1 (relative to the v1.0-acsac2026 tag)
   - claim6: the "mismatched" server probe was built by reordering the candidate
     feature lists, which selects the same ten features as the attacker's
@@ -179,7 +188,7 @@ private data, and no component that will be removed from the released version.
 
   Repository   https://github.com/autumnjj12138-oss/TriProbe-for-ACSAC
   Permanent    https://doi.org/10.5281/zenodo.22690394 (all versions; the
-               evaluated version is the v1.1-acsac2026 tag)
+               evaluated version is the v1.2-acsac2026 tag)
   License      MIT, see license.txt
 
 The three datasets are the only thing not redistributed here, and that is a
@@ -191,7 +200,7 @@ layout, and row counts to verify a correct download against.
 
 DATASETS
 --------
-Three public datasets are needed, about 1.5 GB total. They are not bundled
+Three public datasets are needed, about 0.9 GB in total. They are not bundled
 because each requires accepting a provider licence. install.sh checks whether
 they are present; infrastructure/datasets.md gives URLs, the expected directory
 layout, and row counts to verify against.

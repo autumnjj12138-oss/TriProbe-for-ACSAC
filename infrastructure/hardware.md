@@ -13,9 +13,16 @@ All numbers in `artifact/reference_outputs/` were produced on:
 | numpy / pandas / scikit-learn | 2.4.3 / 3.0.1 / 1.8.0 |
 | OS | Windows 11 |
 
-Peak GPU memory is under 1.5 GB, so any CUDA GPU with 4 GB or more is enough.
-Peak host memory is about 3 GB per concurrent run, mostly the pandas frame
-holding CIC-IDS2017 before downsampling.
+GPU memory is not the binding constraint. Measured peak torch reservation is
+0.09 GB, and device-wide usage rises about 0.13 GB above idle while training,
+so two runs fit on this 4 GB card at once (we ran two full-budget jobs
+concurrently).
+
+Host RAM is the binding constraint: measured peak resident set is **4.2 GB**
+per concurrent run, almost all of it the pandas frame holding all 2,830,743
+CIC-IDS2017 rows before downsampling. That peak is the same at `--smoke`,
+`--quick` and `--full`, because the eight CSVs are merged before the row cap is
+applied. Plan for 8 GB of RAM; 4 GB is not enough.
 
 ## Determinism
 
